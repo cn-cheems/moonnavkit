@@ -1,0 +1,7 @@
+import {
+  "cn-cheems/moonnavkit" @nav,
+}
+
+options(
+  "is-main": true,
+)
