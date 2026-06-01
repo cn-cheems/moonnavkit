@@ -294,3 +294,28 @@ test "heuristic estimates" {
   assert_eq(Heuristic::Euclidean.estimate(a, b), 5)
   assert_eq(Heuristic::Octile.estimate(a, b), 5)
 }
+
+///|
+test "min priority queue pops lowest priority first" {
+  let queue = MinPriorityQueue::new()
+  queue.push(10, 5)
+  queue.push(20, 1)
+  queue.push(30, 3)
+  assert_eq(queue.length(), 3)
+  assert_eq(queue.pop().unwrap().item, 20)
+  assert_eq(queue.pop().unwrap().item, 30)
+  assert_eq(queue.pop().unwrap().item, 10)
+  assert_true(queue.is_empty())
+}
+
+///|
+test "min priority queue preserves insertion order for ties" {
+  let queue = MinPriorityQueue::new()
+  queue.push(1, 4)
+  queue.push(2, 4)
+  queue.push(3, 4)
+  assert_eq(queue.peek().unwrap().item, 1)
+  assert_eq(queue.pop().unwrap().item, 1)
+  assert_eq(queue.pop().unwrap().item, 2)
+  assert_eq(queue.pop().unwrap().item, 3)
+}
