@@ -14,6 +14,7 @@ Current foundation:
 
 - Grid coordinates with `Point`
 - Weighted rectangular `GridMap`
+- Weighted directed/undirected `Graph`
 - Four-direction neighbors
 - BFS for unweighted shortest paths
 - Dijkstra for weighted shortest paths
@@ -41,6 +42,30 @@ test {
   assert_true(result.found)
   let json = result.to_json()
   assert_true(json.length() > 0)
+}
+```
+
+## Graph Example
+
+MoonNavKit also supports general weighted graphs. Node positions are optional for
+Dijkstra, but useful for A* heuristics and visualization-oriented exports.
+
+```mbt
+test {
+  let graph = Graph::new()
+  let start = graph.add_node(Point::new(0, 0))
+  let mid = graph.add_node(Point::new(1, 0))
+  let goal = graph.add_node(Point::new(2, 0))
+
+  graph.add_directed_edge(start, mid, 1) |> ignore
+  graph.add_directed_edge(mid, goal, 1) |> ignore
+  graph.add_directed_edge(start, goal, 5) |> ignore
+
+  let result = graph.astar(start, goal, Heuristic::Manhattan)
+
+  assert_true(result.found)
+  assert_eq(result.cost, 2)
+  assert_true(result.nodes == [start, mid, goal])
 }
 ```
 
@@ -95,6 +120,6 @@ SVG uses consistent colors for the main states:
 
 ## Roadmap
 
-- General graph model
 - More examples and benchmark notes
 - Additional replay controls for generated HTML
+- Benchmark notes for grid and graph search

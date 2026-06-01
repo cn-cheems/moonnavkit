@@ -92,3 +92,30 @@ pub fn PathResult::to_json(self : PathResult) -> String {
   buf.write_string("}")
   buf.to_string()
 }
+
+///|
+fn write_ints_json(buf : StringBuilder, values : Array[Int]) -> Unit {
+  buf.write_string("[")
+  for i = 0; i < values.length(); i = i + 1 {
+    if i > 0 {
+      buf.write_string(",")
+    }
+    buf.write_string(values[i].to_string())
+  }
+  buf.write_string("]")
+}
+
+///|
+pub fn GraphPathResult::to_json(self : GraphPathResult) -> String {
+  let buf = StringBuilder(size_hint=128 + self.points.length() * 24 + self.trace.length() * 64)
+  buf.write_string("{\"found\":")
+  buf.write_string(if self.found { "true" } else { "false" })
+  buf.write_string(",\"cost\":\{self.cost},\"visited_count\":\{self.visited_count},\"nodes\":")
+  write_ints_json(buf, self.nodes)
+  buf.write_string(",\"points\":")
+  write_points_json(buf, self.points)
+  buf.write_string(",\"trace\":")
+  buf.write_string(self.trace.to_json())
+  buf.write_string("}")
+  buf.to_string()
+}

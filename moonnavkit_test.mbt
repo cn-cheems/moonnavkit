@@ -170,6 +170,73 @@ test "html export embeds svg and json payload" {
 }
 
 ///|
+test "graph adds nodes and weighted edges" {
+  let graph = Graph::new()
+  let a = graph.add_node(Point::new(0, 0))
+  let b = graph.add_node(Point::new(1, 0))
+  graph.add_undirected_edge(a, b, 3) |> ignore
+  assert_eq(graph.node_count(), 2)
+  assert_eq(graph.edge_count(), 2)
+  assert_eq(graph.neighbors(a).length(), 1)
+  assert_eq(graph.neighbors(a)[0].weight, 3)
+}
+
+///|
+test "graph dijkstra prefers cheaper weighted path" {
+  let graph = Graph::new()
+  let a = graph.add_node(Point::new(0, 0))
+  let b = graph.add_node(Point::new(1, 0))
+  let c = graph.add_node(Point::new(2, 0))
+  graph.add_directed_edge(a, b, 10) |> ignore
+  graph.add_directed_edge(a, c, 1) |> ignore
+  graph.add_directed_edge(c, b, 1) |> ignore
+  let result = graph.dijkstra(a, b)
+  assert_true(result.found)
+  assert_eq(result.cost, 2)
+  assert_true(result.nodes == [a, c, b])
+  assert_true(result.points == [Point::new(0, 0), Point::new(2, 0), Point::new(1, 0)])
+}
+
+///|
+test "graph astar uses node positions" {
+  let graph = Graph::new()
+  let a = graph.add_node(Point::new(0, 0))
+  let b = graph.add_node(Point::new(1, 0))
+  let c = graph.add_node(Point::new(2, 0))
+  graph.add_directed_edge(a, b, 1) |> ignore
+  graph.add_directed_edge(b, c, 1) |> ignore
+  graph.add_directed_edge(a, c, 5) |> ignore
+  let result = graph.astar(a, c, Heuristic::Manhattan)
+  assert_true(result.found)
+  assert_eq(result.cost, 2)
+  assert_true(result.nodes == [a, b, c])
+  assert_eq(result.trace.length(), 3)
+}
+
+///|
+test "graph reports unreachable target" {
+  let graph = Graph::new()
+  let a = graph.add_node(Point::new(0, 0))
+  let b = graph.add_node(Point::new(1, 0))
+  let result = graph.dijkstra(a, b)
+  assert_false(result.found)
+  assert_true(result.nodes == [])
+  assert_eq(result.cost, -1)
+}
+
+///|
+test "graph path result exports json" {
+  let graph = Graph::new()
+  let a = graph.add_node(Point::new(0, 0))
+  let b = graph.add_node(Point::new(1, 0))
+  graph.add_directed_edge(a, b, 2) |> ignore
+  let result = graph.dijkstra(a, b)
+  assert_true(result.to_json().contains("\"nodes\":[0,1]"))
+  assert_true(result.to_json().contains("\"points\":[{\"x\":0,\"y\":0},{\"x\":1,\"y\":0}]"))
+  assert_true(result.to_json().contains("\"cost\":2"))
+}
+
+///|
 test "heuristic estimates" {
   let a = Point::new(0, 0)
   let b = Point::new(3, 4)
