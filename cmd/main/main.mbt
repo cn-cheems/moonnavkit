@@ -15,4 +15,6 @@ fn main {
   println("cost: \{result.cost}")
   println("path length: \{result.path.length()}")
   println("visited cells: \{result.visited_count}")
+  println("trace steps: \{result.trace.length()}")
+  println(result.to_json())
 }

@@ -104,6 +104,34 @@ test "find_path dispatches algorithms" {
 }
 
 ///|
+test "search trace records expanded cells" {
+  let result = GridMap::new(3, 1).bfs(Point::new(0, 0), Point::new(2, 0))
+  assert_true(result.found)
+  assert_eq(result.visited_count, 3)
+  assert_eq(result.trace.length(), 3)
+  assert_true(result.trace.steps[0].point == Point::new(0, 0))
+  assert_true(result.trace.steps[2].point == Point::new(2, 0))
+}
+
+///|
+test "trace json includes ordered steps" {
+  let result = GridMap::new(2, 1).bfs(Point::new(0, 0), Point::new(1, 0))
+  assert_eq(
+    result.trace.to_json(),
+    "{\"steps\":[{\"order\":0,\"point\":{\"x\":0,\"y\":0},\"cost\":0,\"score\":0},{\"order\":1,\"point\":{\"x\":1,\"y\":0},\"cost\":1,\"score\":1}]}",
+  )
+}
+
+///|
+test "path result exports json" {
+  let result = GridMap::new(2, 1).bfs(Point::new(0, 0), Point::new(1, 0))
+  assert_eq(
+    result.to_json(),
+    "{\"found\":true,\"cost\":1,\"visited_count\":2,\"path\":[{\"x\":0,\"y\":0},{\"x\":1,\"y\":0}],\"trace\":{\"steps\":[{\"order\":0,\"point\":{\"x\":0,\"y\":0},\"cost\":0,\"score\":0},{\"order\":1,\"point\":{\"x\":1,\"y\":0},\"cost\":1,\"score\":1}]}}",
+  )
+}
+
+///|
 test "heuristic estimates" {
   let a = Point::new(0, 0)
   let b = Point::new(3, 4)

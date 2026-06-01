@@ -18,6 +18,8 @@ Current foundation:
 - BFS for unweighted shortest paths
 - Dijkstra for weighted shortest paths
 - A* with Manhattan, Euclidean, and Octile heuristics
+- Search trace recording
+- JSON export for path results and trace data
 
 ## Quick Example
 
@@ -35,13 +37,29 @@ test {
   )
 
   assert_true(result.found)
+  let json = result.to_json()
+  assert_true(json.length() > 0)
+}
+```
+
+## Trace Export
+
+Every search records expanded cells in order. This makes the core library useful
+for debugging, teaching, and visualization replay.
+
+```mbt
+test {
+  let result = GridMap::new(3, 1).bfs(Point::new(0, 0), Point::new(2, 0))
+  assert_eq(result.trace.length(), 3)
+  assert_eq(
+    result.trace.to_json(),
+    "{\"steps\":[{\"order\":0,\"point\":{\"x\":0,\"y\":0},\"cost\":0,\"score\":0},{\"order\":1,\"point\":{\"x\":1,\"y\":0},\"cost\":1,\"score\":1},{\"order\":2,\"point\":{\"x\":2,\"y\":0},\"cost\":2,\"score\":2}]}",
+  )
 }
 ```
 
 ## Roadmap
 
-- Search trace recording
-- JSON export
 - SVG/HTML visualization export
 - General graph model
 - More examples and benchmark notes

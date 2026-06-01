@@ -36,11 +36,12 @@ pub(all) struct PathResult {
   path : Array[Point]
   cost : Int
   visited_count : Int
+  trace : SearchTrace
 } derive(Eq, Debug)
 
 ///|
 pub fn PathResult::not_found(visited_count : Int) -> PathResult {
-  { found: false, path: [], cost: -1, visited_count }
+  { found: false, path: [], cost: -1, visited_count, trace: SearchTrace::new() }
 }
 
 ///|

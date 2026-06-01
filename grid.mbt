@@ -157,6 +157,7 @@ fn GridMap::search(
   let dist = Array::make(total, unreachable_cost)
   let parent = Array::make(total, -1)
   let closed = Array::make(total, false)
+  let trace = SearchTrace::new()
   dist[start_index] = 0
   let mut visited_count = 0
 
@@ -165,12 +166,18 @@ fn GridMap::search(
     if current == -1 {
       break
     }
+    let current_point = self.point_at(current)
+    trace.push_step(
+      visited_count,
+      current_point,
+      dist[current],
+      self.score_for(current, dist, goal, algorithm),
+    )
+    visited_count = visited_count + 1
     if current == goal_index {
       break
     }
     closed[current] = true
-    visited_count = visited_count + 1
-    let current_point = self.point_at(current)
     let neighbors = self.neighbors4(current_point)
     for i = 0; i < neighbors.length(); i = i + 1 {
       let next = neighbors[i]
@@ -191,16 +198,17 @@ fn GridMap::search(
   }
 
   if start_index == goal_index {
-    return { found: true, path: [start], cost: 0, visited_count: 1 }
+    return { found: true, path: [start], cost: 0, visited_count, trace }
   }
   if parent[goal_index] == -1 {
-    return PathResult::not_found(visited_count)
+    return { found: false, path: [], cost: -1, visited_count, trace }
   }
   {
     found: true,
     path: self.reconstruct_path(parent, goal_index),
     cost: dist[goal_index],
     visited_count,
+    trace,
   }
 }
 
@@ -216,11 +224,7 @@ fn GridMap::select_next(
   let mut best_score = unreachable_cost
   for i = 0; i < dist.length(); i = i + 1 {
     if !closed[i] && dist[i] < unreachable_cost {
-      let point = self.point_at(i)
-      let score = match algorithm {
-        AStar(heuristic) => dist[i] + heuristic.estimate(point, goal)
-        _ => dist[i]
-      }
+      let score = self.score_for(i, dist, goal, algorithm)
       if score < best_score {
         best = i
         best_score = score
@@ -228,6 +232,21 @@ fn GridMap::select_next(
     }
   }
   best
+}
+
+///|
+fn GridMap::score_for(
+  self : GridMap,
+  index : Int,
+  dist : Array[Int],
+  goal : Point,
+  algorithm : Algorithm
+) -> Int {
+  let point = self.point_at(index)
+  match algorithm {
+    AStar(heuristic) => dist[index] + heuristic.estimate(point, goal)
+    _ => dist[index]
+  }
 }
 
 ///|
