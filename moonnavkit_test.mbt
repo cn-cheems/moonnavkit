@@ -198,6 +198,23 @@ test "graph dijkstra prefers cheaper weighted path" {
 }
 
 ///|
+test "graph dijkstra ignores stale queued priorities" {
+  let graph = Graph::new()
+  let a = graph.add_node(Point::new(0, 0))
+  let b = graph.add_node(Point::new(1, 0))
+  let c = graph.add_node(Point::new(2, 0))
+  let d = graph.add_node(Point::new(3, 0))
+  graph.add_directed_edge(a, c, 10) |> ignore
+  graph.add_directed_edge(a, b, 1) |> ignore
+  graph.add_directed_edge(b, c, 1) |> ignore
+  graph.add_directed_edge(c, d, 1) |> ignore
+  let result = graph.dijkstra(a, d)
+  assert_true(result.found)
+  assert_true(result.nodes == [a, b, c, d])
+  assert_eq(result.cost, 3)
+}
+
+///|
 test "graph astar uses node positions" {
   let graph = Graph::new()
   let a = graph.add_node(Point::new(0, 0))
