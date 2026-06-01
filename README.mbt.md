@@ -149,5 +149,6 @@ test {
 - Additional replay controls for generated HTML
 - Benchmark notes for grid and graph search
 
+See [Roadmap](ROADMAP.md) for planned contest deliverables and non-goals.
 See [Performance Notes](docs/performance-notes.md) for current complexity and
 reproducible benchmark scenarios.
