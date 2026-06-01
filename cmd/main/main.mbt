@@ -16,5 +16,7 @@ fn main {
   println("path length: \{result.path.length()}")
   println("visited cells: \{result.visited_count}")
   println("trace steps: \{result.trace.length()}")
-  println(result.to_json())
+  println("json chars: \{result.to_json().length()}")
+  println("svg chars: \{grid.to_svg(result, 24).length()}")
+  println("html chars: \{grid.to_html(result, 24).length()}")
 }

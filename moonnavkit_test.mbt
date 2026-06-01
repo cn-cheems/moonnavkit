@@ -132,6 +132,44 @@ test "path result exports json" {
 }
 
 ///|
+test "svg export renders grid trace and path" {
+  let grid = GridMap::new(2, 1)
+  let result = grid.bfs(Point::new(0, 0), Point::new(1, 0))
+  let svg = grid.to_svg(result, 20)
+  assert_true(svg.contains("<svg xmlns=\"http://www.w3.org/2000/svg\""))
+  assert_true(svg.contains("width=\"40\""))
+  assert_true(svg.contains("height=\"20\""))
+  assert_true(svg.contains("<polyline"))
+  assert_true(svg.contains("stroke=\"#16a34a\""))
+  assert_true(svg.contains("fill=\"#22c55e\""))
+  assert_true(svg.contains("fill=\"#ef4444\""))
+}
+
+///|
+test "svg export marks blocked and weighted cells" {
+  let grid = GridMap::new(3, 1)
+    .set_blocked(Point::new(1, 0))
+    .set_weight(Point::new(2, 0), 7)
+  let result = grid.bfs(Point::new(0, 0), Point::new(0, 0))
+  let svg = grid.to_svg(result, 16)
+  assert_true(svg.contains("fill=\"#111827\""))
+  assert_true(svg.contains("fill=\"#fde68a\""))
+  assert_true(svg.contains(">7</text>"))
+}
+
+///|
+test "html export embeds svg and json payload" {
+  let grid = GridMap::new(2, 1)
+  let result = grid.bfs(Point::new(0, 0), Point::new(1, 0))
+  let html = grid.to_html(result, 20)
+  assert_true(html.contains("<!doctype html>"))
+  assert_true(html.contains("<title>MoonNavKit Replay</title>"))
+  assert_true(html.contains("<svg"))
+  assert_true(html.contains("id=\"moonnavkit-data\""))
+  assert_true(html.contains("\"found\":true"))
+}
+
+///|
 test "heuristic estimates" {
   let a = Point::new(0, 0)
   let b = Point::new(3, 4)

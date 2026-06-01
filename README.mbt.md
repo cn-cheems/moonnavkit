@@ -20,6 +20,8 @@ Current foundation:
 - A* with Manhattan, Euclidean, and Octile heuristics
 - Search trace recording
 - JSON export for path results and trace data
+- SVG export for visual inspection
+- Standalone HTML replay export
 
 ## Quick Example
 
@@ -58,8 +60,41 @@ test {
 }
 ```
 
+## Visualization Export
+
+The same result can be exported as SVG or a standalone HTML replay page.
+
+```mbt
+test {
+  let grid = GridMap::new(4, 3)
+    .set_blocked(Point::new(1, 0))
+    .set_blocked(Point::new(1, 1))
+    .set_weight(Point::new(2, 1), 4)
+
+  let result = grid.astar(
+    Point::new(0, 0),
+    Point::new(3, 2),
+    Heuristic::Manhattan,
+  )
+
+  let svg = grid.to_svg(result, 24)
+  assert_true(svg.contains("<svg"))
+
+  let html = grid.to_html(result, 24)
+  assert_true(html.contains("MoonNavKit Replay"))
+}
+```
+
+SVG uses consistent colors for the main states:
+
+- Dark cells are blocked.
+- Yellow cells have custom weights.
+- Blue overlays are expanded search steps.
+- Green lines are final paths.
+- Green and red circles mark start and goal.
+
 ## Roadmap
 
-- SVG/HTML visualization export
 - General graph model
 - More examples and benchmark notes
+- Additional replay controls for generated HTML
