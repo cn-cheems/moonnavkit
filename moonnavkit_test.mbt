@@ -237,6 +237,56 @@ test "graph path result exports json" {
 }
 
 ///|
+test "random grid generation is deterministic" {
+  let config = RandomGridConfig::new(8, 6, 42)
+    .with_blocked_percent(25)
+    .with_weighted_percent(20)
+    .with_max_weight(8)
+  let first = GridMap::random(config)
+  let second = GridMap::random(config)
+  assert_true(first == second)
+  assert_eq(first.cell_count(), 48)
+}
+
+///|
+test "random grid can keep important cells open" {
+  let start = Point::new(0, 0)
+  let goal = Point::new(4, 4)
+  let config = RandomGridConfig::new(5, 5, 7).with_blocked_percent(100)
+  let grid = GridMap::random_with_clear_points(config, [start, goal])
+  assert_false(grid.is_blocked(start))
+  assert_false(grid.is_blocked(goal))
+  assert_eq(grid.blocked_count(), 23)
+}
+
+///|
+test "grid stats count blocked and weighted cells" {
+  let grid = GridMap::new(3, 2)
+    .set_blocked(Point::new(0, 0))
+    .set_weight(Point::new(1, 0), 5)
+    .set_weight(Point::new(2, 1), 3)
+  let stats = grid.stats()
+  assert_eq(stats.cells, 6)
+  assert_eq(stats.open_cells, 5)
+  assert_eq(stats.blocked_cells, 1)
+  assert_eq(stats.weighted_cells, 2)
+}
+
+///|
+test "random weighted grid can be searched" {
+  let start = Point::new(0, 0)
+  let goal = Point::new(5, 5)
+  let config = RandomGridConfig::new(6, 6, 11)
+    .with_blocked_percent(5)
+    .with_weighted_percent(30)
+    .with_max_weight(7)
+  let grid = GridMap::random_with_clear_points(config, [start, goal])
+  let result = grid.astar(start, goal, Heuristic::Manhattan)
+  assert_true(result.visited_count > 0)
+  assert_true(result.trace.length() > 0)
+}
+
+///|
 test "heuristic estimates" {
   let a = Point::new(0, 0)
   let b = Point::new(3, 4)

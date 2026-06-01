@@ -31,4 +31,26 @@ fn main {
   println("graph found: \{graph_result.found}")
   println("graph cost: \{graph_result.cost}")
   println("graph node count: \{graph_result.nodes.length()}")
+
+  let random_start = @nav.Point::new(0, 0)
+  let random_goal = @nav.Point::new(7, 7)
+  let config = @nav.RandomGridConfig::new(8, 8, 2026)
+    .with_blocked_percent(5)
+    .with_weighted_percent(35)
+    .with_max_weight(8)
+  let random_grid = @nav.GridMap::random_with_clear_points(
+    config,
+    [random_start, random_goal],
+  )
+  let stats = random_grid.stats()
+  let random_result = random_grid.astar(
+    random_start,
+    random_goal,
+    @nav.Heuristic::Manhattan,
+  )
+  println("random grid cells: \{stats.cells}")
+  println("random blocked cells: \{stats.blocked_cells}")
+  println("random weighted cells: \{stats.weighted_cells}")
+  println("random path found: \{random_result.found}")
+  println("random visited cells: \{random_result.visited_count}")
 }

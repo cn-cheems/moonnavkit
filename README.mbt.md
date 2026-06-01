@@ -23,6 +23,8 @@ Current foundation:
 - JSON export for path results and trace data
 - SVG export for visual inspection
 - Standalone HTML replay export
+- Deterministic random grid generation
+- Grid statistics for benchmark notes
 
 ## Quick Example
 
@@ -118,8 +120,34 @@ SVG uses consistent colors for the main states:
 - Green lines are final paths.
 - Green and red circles mark start and goal.
 
+## Random Grid Generation
+
+Seeded maps are deterministic, so examples, tests, and benchmark notes can be
+reproduced exactly.
+
+```mbt
+test {
+  let start = Point::new(0, 0)
+  let goal = Point::new(5, 5)
+  let config = RandomGridConfig::new(6, 6, 11)
+    .with_blocked_percent(5)
+    .with_weighted_percent(30)
+    .with_max_weight(7)
+
+  let grid = GridMap::random_with_clear_points(config, [start, goal])
+  let stats = grid.stats()
+  let result = grid.astar(start, goal, Heuristic::Manhattan)
+
+  assert_eq(stats.cells, 36)
+  assert_true(result.trace.length() > 0)
+}
+```
+
 ## Roadmap
 
 - More examples and benchmark notes
 - Additional replay controls for generated HTML
 - Benchmark notes for grid and graph search
+
+See [Performance Notes](docs/performance-notes.md) for current complexity and
+reproducible benchmark scenarios.
