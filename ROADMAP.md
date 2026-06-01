@@ -17,15 +17,15 @@ while leaving room for stronger engineering work.
 - Standalone HTML replay export.
 - Deterministic random grid generation.
 - Grid statistics and performance notes.
-- 25 passing tests.
+- Stable min-priority queue for grid and graph open sets.
+- 28 passing tests.
 
 ## Near-Term Work
 
-1. Priority queue optimization
+1. Navigable abstraction
 
-   Replace the current linear next-node selection with a priority queue for
-   Dijkstra and A*. This should improve larger grid and graph workloads while
-   keeping behavior deterministic.
+   Define a public navigation trait so user-owned map structures can feed the
+   same pathfinding algorithms without copying into `GridMap` or `Graph`.
 
 2. More search variants
 

@@ -1,20 +1,21 @@
 # Performance Notes
 
-MoonNavKit currently favors clear, deterministic behavior over specialized data
-structures. The implementation is intentionally simple in the early contest
-stage so correctness, trace export, and visualization can be built on stable
-ground.
+MoonNavKit keeps correctness and deterministic traces as the first priority, but
+the core weighted searches now use an internal stable min-priority queue. This
+keeps the implementation inspectable while avoiding a full open-set scan on
+larger maps and graphs.
 
 ## Current Complexity
 
-Grid search and graph search both use a linear scan to select the next open
-node. This keeps the implementation dependency-free and easy to inspect.
+Grid search and graph search share `MinPriorityQueue` for the open set. Entries
+are stable for equal priorities, and stale entries are skipped when a better
+distance has already been recorded.
 
 | Operation | Current complexity |
 | --- | --- |
-| BFS on grid | O(V^2 + E) with current selector |
-| Dijkstra on grid/graph | O(V^2 + E) |
-| A* on grid/graph | O(V^2 + E) |
+| BFS on grid/graph | O((V + E) log V) with the shared open set |
+| Dijkstra on grid/graph | O((V + E) log V) |
+| A* on grid/graph | O((V + E) log V) |
 | Trace export | O(number of expanded nodes) |
 | SVG export | O(grid cells + expanded nodes + path length) |
 
@@ -41,9 +42,8 @@ Suggested benchmark scenarios:
 
 ## Current Engineering Direction
 
-Near-term performance work should be done after the public API stabilizes:
+Near-term performance work should focus on reproducible measurement:
 
-- Replace linear next-node selection with a priority queue for Dijkstra and A*.
 - Add deterministic benchmark commands.
 - Add golden JSON/SVG output samples for important map seeds.
 - Track visited node count, trace length, path cost, and output size in docs.

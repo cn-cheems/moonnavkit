@@ -19,6 +19,7 @@ Current foundation:
 - BFS for unweighted shortest paths
 - Dijkstra for weighted shortest paths
 - A* with Manhattan, Euclidean, and Octile heuristics
+- Stable min-priority queue for open-set management
 - Search trace recording
 - JSON export for path results and trace data
 - SVG export for visual inspection
