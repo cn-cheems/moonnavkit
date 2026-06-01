@@ -158,11 +158,13 @@ fn GridMap::search(
   let parent = Array::make(total, -1)
   let closed = Array::make(total, false)
   let trace = SearchTrace::new()
+  let open = MinPriorityQueue::new()
   dist[start_index] = 0
+  open.push(start_index, self.score_for(start_index, dist, goal, algorithm))
   let mut visited_count = 0
 
   for _step = 0; _step < total; _step = _step + 1 {
-    let current = self.select_next(dist, closed, goal, algorithm)
+    let current = self.take_next_open(open, dist, closed, goal, algorithm)
     if current == -1 {
       break
     }
@@ -192,6 +194,7 @@ fn GridMap::search(
         if candidate < dist[next_index] {
           dist[next_index] = candidate
           parent[next_index] = current
+          open.push(next_index, self.score_for(next_index, dist, goal, algorithm))
         }
       }
     }
@@ -213,25 +216,28 @@ fn GridMap::search(
 }
 
 ///|
-fn GridMap::select_next(
+fn GridMap::take_next_open(
   self : GridMap,
+  open : MinPriorityQueue,
   dist : Array[Int],
   closed : Array[Bool],
   goal : Point,
   algorithm : Algorithm
 ) -> Int {
-  let mut best = -1
-  let mut best_score = unreachable_cost
-  for i = 0; i < dist.length(); i = i + 1 {
-    if !closed[i] && dist[i] < unreachable_cost {
-      let score = self.score_for(i, dist, goal, algorithm)
-      if score < best_score {
-        best = i
-        best_score = score
+  let mut selected = -1
+  let mut done = false
+  while !done {
+    match open.pop() {
+      None => done = true
+      Some(entry) =>
+        if !closed[entry.item] &&
+          entry.priority == self.score_for(entry.item, dist, goal, algorithm) {
+          selected = entry.item
+          done = true
+        }
       }
-    }
   }
-  best
+  selected
 }
 
 ///|
