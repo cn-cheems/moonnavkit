@@ -153,3 +153,10 @@ test {
 See [Roadmap](ROADMAP.md) for planned contest deliverables and non-goals.
 See [Performance Notes](docs/performance-notes.md) for current complexity and
 reproducible benchmark scenarios.
+See [Benchmark Scenarios](docs/benchmark-scenarios.md) for the deterministic
+`moon run cmd/bench` output used to track search behavior across commits.
+
+## Development Tracking
+
+MoonNavKit uses issue templates, pull request templates, and `CHANGELOG.md` so
+ongoing work can be reviewed through public repository history.
