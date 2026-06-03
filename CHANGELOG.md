@@ -3,6 +3,14 @@
 All notable changes to MoonNavKit are recorded here so contest reviewers and
 future users can trace the project history without reading every commit.
 
+## Unreleased
+
+### Added
+
+- Added `cmd/bench`, a deterministic benchmark-style command for comparing
+  grid and graph search behavior across commits.
+- Added benchmark scenario documentation with stable seeds and output fields.
+
 ## 0.2.0 - 2026-06-03
 
 ### Added
@@ -38,4 +46,3 @@ future users can trace the project history without reading every commit.
 ### Verified
 
 - `moon test` with 25 passing tests
-
