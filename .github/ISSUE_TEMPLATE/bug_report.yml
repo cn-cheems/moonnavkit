@@ -1,0 +1,49 @@
+name: Bug report
+description: Report incorrect behavior in MoonNavKit.
+title: "[Bug]: "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for helping make MoonNavKit easier to verify.
+  - type: input
+    id: version
+    attributes:
+      label: Version or commit
+      description: Paste the release version or commit hash where the issue appears.
+      placeholder: "25c71c8"
+    validations:
+      required: true
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: What went wrong?
+      placeholder: "A* returns a higher-cost path on this weighted grid..."
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Reproduction steps
+      description: Include a minimal grid or graph case when possible.
+      placeholder: |
+        1. Build a 3x3 grid...
+        2. Run grid.dijkstra(...)
+        3. Compare result.cost
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+      description: What should MoonNavKit return?
+    validations:
+      required: true
+  - type: textarea
+    id: notes
+    attributes:
+      label: Notes
+      description: Add trace JSON, SVG output, screenshots, or related links.
+

@@ -1,0 +1,29 @@
+name: Performance task
+description: Track benchmark, complexity, or data-structure work.
+title: "[Perf]: "
+labels: ["performance"]
+body:
+  - type: textarea
+    id: scenario
+    attributes:
+      label: Scenario
+      description: Which workload is being measured or optimized?
+      placeholder: "32x32 weighted grid, seed 202, Dijkstra and A*."
+    validations:
+      required: true
+  - type: textarea
+    id: current
+    attributes:
+      label: Current behavior
+      description: Include visited nodes, trace length, cost, or output size when available.
+  - type: textarea
+    id: target
+    attributes:
+      label: Target outcome
+      description: What improvement or stability condition should be reached?
+  - type: textarea
+    id: verification
+    attributes:
+      label: Verification
+      description: Which tests or benchmark notes should be updated?
+
