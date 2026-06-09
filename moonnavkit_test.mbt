@@ -254,6 +254,25 @@ test "graph path result exports json" {
 }
 
 ///|
+test "graph dot export highlights final path" {
+  let graph = Graph::new()
+  let a = graph.add_node(Point::new(0, 0))
+  let b = graph.add_node(Point::new(1, 0))
+  let c = graph.add_node(Point::new(2, 0))
+  graph.add_directed_edge(a, b, 1) |> ignore
+  graph.add_directed_edge(b, c, 1) |> ignore
+  graph.add_directed_edge(a, c, 5) |> ignore
+  let result = graph.dijkstra(a, c)
+  let dot = graph.to_dot(result)
+  assert_true(dot.contains("digraph MoonNavKit"))
+  assert_true(dot.contains("n0 [label=\"0 (0,0)\"]"))
+  assert_true(dot.contains("n0 -> n1 [label=\"1\", color=\"#16a34a\", penwidth=3]"))
+  assert_true(dot.contains("n1 -> n2 [label=\"1\", color=\"#16a34a\", penwidth=3]"))
+  assert_true(dot.contains("n0 -> n2 [label=\"5\"]"))
+  assert_true(dot.contains("label=\"cost=2, visited=3\""))
+}
+
+///|
 test "random grid generation is deterministic" {
   let config = RandomGridConfig::new(8, 6, 42)
     .with_blocked_percent(25)

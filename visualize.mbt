@@ -183,3 +183,59 @@ pub fn GridMap::to_html(
   buf.write_string("</script></main></body></html>")
   buf.to_string()
 }
+
+///|
+fn edge_in_node_path(from : Int, to : Int, nodes : Array[Int]) -> Bool {
+  for i = 0; i + 1 < nodes.length(); i = i + 1 {
+    if nodes[i] == from && nodes[i + 1] == to {
+      return true
+    }
+  }
+  false
+}
+
+///|
+fn Graph::write_dot_nodes(self : Graph, buf : StringBuilder) -> Unit {
+  for i = 0; i < self.nodes.length(); i = i + 1 {
+    let node = self.nodes[i]
+    buf.write_string(
+      "  n\{node.id} [label=\"\{node.id} (\{node.position.x},\{node.position.y})\"];\n",
+    )
+  }
+}
+
+///|
+fn Graph::write_dot_edges(
+  self : Graph,
+  buf : StringBuilder,
+  result : GraphPathResult
+) -> Unit {
+  for i = 0; i < self.edges.length(); i = i + 1 {
+    let edge = self.edges[i]
+    let on_path = edge_in_node_path(edge.from, edge.to, result.nodes)
+    buf.write_string("  n\{edge.from} -> n\{edge.to} [label=\"\{edge.weight}\"")
+    if on_path {
+      buf.write_string(", color=\"#16a34a\", penwidth=3")
+    }
+    buf.write_string("];\n")
+  }
+}
+
+///|
+/// Exports a graph pathfinding result as Graphviz DOT.
+pub fn Graph::to_dot(self : Graph, result : GraphPathResult) -> String {
+  let buf = StringBuilder(size_hint=256 + self.node_count() * 48 + self.edge_count() * 64)
+  buf.write_string("digraph MoonNavKit {\n")
+  buf.write_string("  graph [rankdir=LR];\n")
+  buf.write_string("  node [shape=circle, style=filled, fillcolor=\"#f8fafc\"];\n")
+  buf.write_string("  edge [color=\"#475569\"];\n")
+  self.write_dot_nodes(buf)
+  self.write_dot_edges(buf, result)
+  if result.found {
+    buf.write_string("  label=\"cost=\{result.cost}, visited=\{result.visited_count}\";\n")
+  } else {
+    buf.write_string("  label=\"path not found, visited=\{result.visited_count}\";\n")
+  }
+  buf.write_string("}\n")
+  buf.to_string()
+}
