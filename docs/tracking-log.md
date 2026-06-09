@@ -17,7 +17,9 @@ review. GitHub remains the source of truth for issues and pull requests.
 ## 2026-06-09
 
 - Issue: [#3 - Add Graph DOT export](https://github.com/cn-cheems/moonnavkit/issues/3)
+- Pull request: [#4 - Add Graph DOT export](https://github.com/cn-cheems/moonnavkit/pull/4)
 - Branch: `feat/graph-dot-export`
+- Commit: `693f270 Add Graph DOT export`
 - Scope:
   - Add Graphviz DOT export for graph search results.
   - Highlight final path edges in DOT output.
