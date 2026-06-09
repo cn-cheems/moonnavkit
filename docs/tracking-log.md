@@ -14,3 +14,11 @@ review. GitHub remains the source of truth for issues and pull requests.
   - `moon test`
   - `moon run cmd/bench`
 
+## 2026-06-09
+
+- Issue: [#3 - Add Graph DOT export](https://github.com/cn-cheems/moonnavkit/issues/3)
+- Branch: `feat/graph-dot-export`
+- Scope:
+  - Add Graphviz DOT export for graph search results.
+  - Highlight final path edges in DOT output.
+  - Update README and CHANGELOG.

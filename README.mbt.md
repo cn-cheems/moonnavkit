@@ -23,6 +23,7 @@ Current foundation:
 - Search trace recording
 - JSON export for path results and trace data
 - SVG export for visual inspection
+- Graphviz DOT export for graph search results
 - Standalone HTML replay export
 - Deterministic random grid generation
 - Grid statistics for benchmark notes
@@ -69,6 +70,23 @@ test {
   assert_true(result.found)
   assert_eq(result.cost, 2)
   assert_true(result.nodes == [start, mid, goal])
+}
+```
+
+Graph results can also be exported as Graphviz DOT:
+
+```mbt
+test {
+  let graph = Graph::new()
+  let start = graph.add_node(Point::new(0, 0))
+  let goal = graph.add_node(Point::new(1, 0))
+  graph.add_directed_edge(start, goal, 2) |> ignore
+
+  let result = graph.dijkstra(start, goal)
+  let dot = graph.to_dot(result)
+
+  assert_true(dot.contains("digraph MoonNavKit"))
+  assert_true(dot.contains("cost=2"))
 }
 ```
 

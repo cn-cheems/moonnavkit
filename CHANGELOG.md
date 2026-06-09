@@ -10,6 +10,7 @@ future users can trace the project history without reading every commit.
 - Added `cmd/bench`, a deterministic benchmark-style command for comparing
   grid and graph search behavior across commits.
 - Added benchmark scenario documentation with stable seeds and output fields.
+- Added Graphviz DOT export for graph search results.
 
 ## 0.2.0 - 2026-06-03
 
