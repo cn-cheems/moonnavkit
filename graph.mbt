@@ -61,7 +61,7 @@ pub fn Graph::add_directed_edge(
   self : Graph,
   from : Int,
   to : Int,
-  weight : Int
+  weight : Int,
 ) -> Graph {
   if self.is_valid_node(from) && self.is_valid_node(to) && weight > 0 {
     self.edges.push({ from, to, weight })
@@ -74,7 +74,7 @@ pub fn Graph::add_undirected_edge(
   self : Graph,
   a : Int,
   b : Int,
-  weight : Int
+  weight : Int,
 ) -> Graph {
   ignore(self.add_directed_edge(a, b, weight))
   ignore(self.add_directed_edge(b, a, weight))
@@ -119,7 +119,7 @@ pub fn Graph::find_path(
   self : Graph,
   start : Int,
   goal : Int,
-  algorithm : Algorithm
+  algorithm : Algorithm,
 ) -> GraphPathResult {
   match algorithm {
     BFS => self.bfs(start, goal)
@@ -134,7 +134,11 @@ pub fn Graph::bfs(self : Graph, start : Int, goal : Int) -> GraphPathResult {
 }
 
 ///|
-pub fn Graph::dijkstra(self : Graph, start : Int, goal : Int) -> GraphPathResult {
+pub fn Graph::dijkstra(
+  self : Graph,
+  start : Int,
+  goal : Int,
+) -> GraphPathResult {
   self.search(start, goal, Dijkstra)
 }
 
@@ -143,7 +147,7 @@ pub fn Graph::astar(
   self : Graph,
   start : Int,
   goal : Int,
-  heuristic : Heuristic
+  heuristic : Heuristic,
 ) -> GraphPathResult {
   self.search(start, goal, AStar(heuristic))
 }
@@ -153,7 +157,7 @@ fn Graph::search(
   self : Graph,
   start : Int,
   goal : Int,
-  algorithm : Algorithm
+  algorithm : Algorithm,
 ) -> GraphPathResult {
   guard self.is_valid_node(start) && self.is_valid_node(goal) else {
     return GraphPathResult::not_found(0)
@@ -164,12 +168,18 @@ fn Graph::search(
   let closed = Array::make(total, false)
   let trace = SearchTrace::new()
   let open = MinPriorityQueue::new()
+  let heuristic_scale = self.admissible_heuristic_scale(algorithm)
   dist[start] = 0
-  open.push(start, self.score_for(start, dist, goal, algorithm))
+  open.push(
+    start,
+    self.score_for(start, dist, goal, algorithm, heuristic_scale),
+  )
   let mut visited_count = 0
 
   for _step = 0; _step < total; _step = _step + 1 {
-    let current = self.take_next_open(open, dist, closed, goal, algorithm)
+    let current = self.take_next_open(
+      open, dist, closed, goal, algorithm, heuristic_scale,
+    )
     if current == -1 {
       break
     }
@@ -178,7 +188,7 @@ fn Graph::search(
       visited_count,
       current_point,
       dist[current],
-      self.score_for(current, dist, goal, algorithm),
+      self.score_for(current, dist, goal, algorithm, heuristic_scale),
     )
     visited_count = visited_count + 1
     if current == goal {
@@ -197,7 +207,10 @@ fn Graph::search(
         if candidate < dist[edge.to] {
           dist[edge.to] = candidate
           parent[edge.to] = current
-          open.push(edge.to, self.score_for(edge.to, dist, goal, algorithm))
+          open.push(
+            edge.to,
+            self.score_for(edge.to, dist, goal, algorithm, heuristic_scale),
+          )
         }
       }
     }
@@ -214,7 +227,14 @@ fn Graph::search(
     }
   }
   if parent[goal] == -1 {
-    return { found: false, nodes: [], points: [], cost: -1, visited_count, trace }
+    return {
+      found: false,
+      nodes: [],
+      points: [],
+      cost: -1,
+      visited_count,
+      trace,
+    }
   }
   let nodes = reconstruct_nodes(parent, goal)
   {
@@ -234,7 +254,8 @@ fn Graph::take_next_open(
   dist : Array[Int],
   closed : Array[Bool],
   goal : Int,
-  algorithm : Algorithm
+  algorithm : Algorithm,
+  heuristic_scale : Int,
 ) -> Int {
   let mut selected = -1
   let mut done = false
@@ -243,11 +264,12 @@ fn Graph::take_next_open(
       None => done = true
       Some(entry) =>
         if !closed[entry.item] &&
-          entry.priority == self.score_for(entry.item, dist, goal, algorithm) {
+          entry.priority ==
+          self.score_for(entry.item, dist, goal, algorithm, heuristic_scale) {
           selected = entry.item
           done = true
         }
-      }
+    }
   }
   selected
 }
@@ -258,12 +280,50 @@ fn Graph::score_for(
   node : Int,
   dist : Array[Int],
   goal : Int,
-  algorithm : Algorithm
+  algorithm : Algorithm,
+  heuristic_scale : Int,
 ) -> Int {
   match algorithm {
     AStar(heuristic) =>
-      dist[node] + heuristic.estimate(self.nodes[node].position, self.nodes[goal].position)
+      dist[node] +
+      heuristic.estimate(self.nodes[node].position, self.nodes[goal].position) *
+      heuristic_scale
     _ => dist[node]
+  }
+}
+
+///|
+/// Finds an integer lower bound for edge cost per heuristic distance.
+///
+/// Arbitrary graph coordinates do not necessarily reflect edge weights. Scaling
+/// by this global lower bound keeps A* admissible; a zero scale safely reduces
+/// it to Dijkstra.
+fn Graph::admissible_heuristic_scale(
+  self : Graph,
+  algorithm : Algorithm,
+) -> Int {
+  match algorithm {
+    AStar(heuristic) => {
+      let mut scale = unreachable_cost
+      let mut constrained = false
+      for i = 0; i < self.edges.length(); i = i + 1 {
+        let edge = self.edges[i]
+        let distance = heuristic.estimate(
+          self.nodes[edge.from].position,
+          self.nodes[edge.to].position,
+        )
+        if distance > 0 {
+          scale = min_int(scale, edge.weight / distance)
+          constrained = true
+        }
+      }
+      if constrained {
+        scale
+      } else {
+        0
+      }
+    }
+    _ => 0
   }
 }
 

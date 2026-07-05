@@ -37,7 +37,8 @@ test "bfs routes around blocked cells" {
   assert_true(result.found)
   assert_eq(result.cost, 4)
   assert_true(
-    result.path == [
+    result.path ==
+    [
       Point::new(0, 0),
       Point::new(0, 1),
       Point::new(1, 1),
@@ -66,7 +67,8 @@ test "dijkstra prefers cheaper weighted route" {
   assert_true(result.found)
   assert_eq(result.cost, 4)
   assert_true(
-    result.path == [
+    result.path ==
+    [
       Point::new(0, 0),
       Point::new(0, 1),
       Point::new(1, 1),
@@ -81,7 +83,11 @@ test "astar finds path with manhattan heuristic" {
   let grid = GridMap::new(5, 3)
     .set_blocked(Point::new(1, 0))
     .set_blocked(Point::new(1, 1))
-  let result = grid.astar(Point::new(0, 0), Point::new(4, 0), Heuristic::Manhattan)
+  let result = grid.astar(
+    Point::new(0, 0),
+    Point::new(4, 0),
+    Heuristic::Manhattan,
+  )
   assert_true(result.found)
   assert_eq(result.cost, 8)
   assert_true(result.path[0] == Point::new(0, 0))
@@ -194,7 +200,9 @@ test "graph dijkstra prefers cheaper weighted path" {
   assert_true(result.found)
   assert_eq(result.cost, 2)
   assert_true(result.nodes == [a, c, b])
-  assert_true(result.points == [Point::new(0, 0), Point::new(2, 0), Point::new(1, 0)])
+  assert_true(
+    result.points == [Point::new(0, 0), Point::new(2, 0), Point::new(1, 0)],
+  )
 }
 
 ///|
@@ -249,7 +257,11 @@ test "graph path result exports json" {
   graph.add_directed_edge(a, b, 2) |> ignore
   let result = graph.dijkstra(a, b)
   assert_true(result.to_json().contains("\"nodes\":[0,1]"))
-  assert_true(result.to_json().contains("\"points\":[{\"x\":0,\"y\":0},{\"x\":1,\"y\":0}]"))
+  assert_true(
+    result
+    .to_json()
+    .contains("\"points\":[{\"x\":0,\"y\":0},{\"x\":1,\"y\":0}]"),
+  )
   assert_true(result.to_json().contains("\"cost\":2"))
 }
 
@@ -266,8 +278,12 @@ test "graph dot export highlights final path" {
   let dot = graph.to_dot(result)
   assert_true(dot.contains("digraph MoonNavKit"))
   assert_true(dot.contains("n0 [label=\"0 (0,0)\"]"))
-  assert_true(dot.contains("n0 -> n1 [label=\"1\", color=\"#16a34a\", penwidth=3]"))
-  assert_true(dot.contains("n1 -> n2 [label=\"1\", color=\"#16a34a\", penwidth=3]"))
+  assert_true(
+    dot.contains("n0 -> n1 [label=\"1\", color=\"#16a34a\", penwidth=3]"),
+  )
+  assert_true(
+    dot.contains("n1 -> n2 [label=\"1\", color=\"#16a34a\", penwidth=3]"),
+  )
   assert_true(dot.contains("n0 -> n2 [label=\"5\"]"))
   assert_true(dot.contains("label=\"cost=2, visited=3\""))
 }
@@ -329,6 +345,24 @@ test "heuristic estimates" {
   assert_eq(Heuristic::Manhattan.estimate(a, b), 7)
   assert_eq(Heuristic::Euclidean.estimate(a, b), 5)
   assert_eq(Heuristic::Octile.estimate(a, b), 5)
+}
+
+///|
+test "graph astar remains optimal when coordinates overestimate edge costs" {
+  let graph = Graph::new()
+  let start = graph.add_node(Point::new(0, 0))
+  let goal = graph.add_node(Point::new(1, 0))
+  let detour = graph.add_node(Point::new(100, 0))
+  ignore(graph.add_directed_edge(start, goal, 5))
+  ignore(graph.add_directed_edge(start, detour, 1))
+  ignore(graph.add_directed_edge(detour, goal, 1))
+  let result = graph.astar(start, goal, Manhattan)
+  assert_true(result.found)
+  assert_eq(result.cost, 2)
+  assert_eq(result.nodes.length(), 3)
+  assert_eq(result.nodes[0], start)
+  assert_eq(result.nodes[1], detour)
+  assert_eq(result.nodes[2], goal)
 }
 
 ///|
