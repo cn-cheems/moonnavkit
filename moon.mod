@@ -11,7 +11,7 @@
 
 name = "cn-cheems/moonnavkit"
 
-version = "0.1.0"
+version = "0.3.0"
 
 readme = "README.mbt.md"
 
@@ -19,6 +19,6 @@ repository = "https://github.com/cn-cheems/moonnavkit"
 
 license = "Apache-2.0"
 
-keywords = ["pathfinding", "astar", "graph", "grid", "visualization"]
+keywords = ["pathfinding", "astar", "flow-field", "graph", "grid", "visualization"]
 
-description = "A MoonBit path planning and search visualization toolkit."
+description = "Weighted path planning, multi-goal flow fields, and search visualization for MoonBit."

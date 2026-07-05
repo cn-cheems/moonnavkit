@@ -24,6 +24,8 @@ open-16x16,bfs,true,30,256,256,31
 - `weighted-32x32-seed404`: compares Dijkstra and A* on a seeded weighted grid.
 - `dense-40x40-seed303`: checks A* behavior on a denser seeded grid.
 - `graph-route-5`: compares Dijkstra and A* on a small weighted directed graph.
+- `many-agent-32x32-seed707`: compares 64 repeated Dijkstra searches with one
+  weighted flow-field build plus 64 route queries.
 
 ## How To Use The Results
 
@@ -31,4 +33,8 @@ open-16x16,bfs,true,30,256,256,31
 - Treat path cost and found status as correctness signals.
 - Treat visited count and trace length as performance direction signals.
 - Add a new row when a new algorithm, map type, or graph workload is introduced.
+
+The many-agent scenario currently reports equal total route cost (`3212`) while
+reducing search expansions from `47672` to `1024`. See
+[Weighted Multi-Goal Flow Fields](flow-fields.md) for interpretation.
 

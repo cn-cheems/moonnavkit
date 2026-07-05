@@ -16,6 +16,8 @@ distance has already been recorded.
 | BFS on grid/graph | O((V + E) log V) with the shared open set |
 | Dijkstra on grid/graph | O((V + E) log V) |
 | A* on grid/graph | O((V + E) log V) |
+| Build weighted flow field | O((V + E) log V) |
+| Query a flow-field route | O(path length) |
 | Trace export | O(number of expanded nodes) |
 | SVG export | O(grid cells + expanded nodes + path length) |
 
@@ -39,15 +41,16 @@ Suggested benchmark scenarios:
 | Dense grid | 40 x 40, seed 303, 35% blocked, 15% weighted | A* | reachable rate, visited cells |
 | Weighted grid | 32 x 32, seed 404, 5% blocked, 60% weighted | Dijkstra, A* | final cost, route shape |
 | Graph route | 100 nodes, sparse positive weights | Dijkstra, A* | path cost, expanded nodes |
+| Many-agent routing | 32 x 32, seed 707, 64 starts | repeated Dijkstra, flow field | equal total cost, search expansions |
 
 ## Current Engineering Direction
 
 Near-term performance work should focus on reproducible measurement:
 
-- Add deterministic benchmark commands.
 - Add golden JSON/SVG output samples for important map seeds.
 - Track visited node count, trace length, path cost, and output size in docs.
 - Compare BFS, Dijkstra, and A* on the same seeded grids.
+- Extend flow fields with incremental rebuilding for dynamic obstacles.
 
 ## Why This Matters
 

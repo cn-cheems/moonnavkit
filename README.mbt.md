@@ -1,6 +1,7 @@
 # MoonNavKit
 
-MoonNavKit is a MoonBit path planning and search visualization toolkit.
+MoonNavKit is a backend-neutral MoonBit path planning, reusable flow-field, and
+search visualization toolkit.
 
 It provides reusable grid and graph pathfinding primitives for games,
 simulation, teaching tools, and visualization systems.
@@ -19,6 +20,8 @@ Current foundation:
 - BFS for unweighted shortest paths
 - Dijkstra for weighted shortest paths
 - A* with Manhattan, Euclidean, and Octile heuristics
+- Weighted multi-goal flow fields for many-agent routing
+- Admissibility-safe A* on arbitrary weighted graphs
 - Stable min-priority queue for open-set management
 - Search trace recording
 - JSON export for path results and trace data
@@ -72,6 +75,32 @@ test {
   assert_true(result.nodes == [start, mid, goal])
 }
 ```
+
+## Many-Agent Flow Fields
+
+When many agents share destinations, repeatedly running A* wastes the same
+search work. `flow_field` performs one reverse Dijkstra build, then reconstructs
+each agent route in O(path length).
+
+```mbt
+test {
+  let grid = GridMap::new(8, 5)
+    .set_weight(Point::new(3, 2), 8)
+    .set_blocked(Point::new(4, 2))
+  let loading_bay = Point::new(7, 2)
+  let emergency_exit = Point::new(0, 4)
+  let field = grid.flow_field([loading_bay, emergency_exit])
+
+  let robot_route = field.path_from(Point::new(1, 0))
+  assert_true(robot_route.found)
+  assert_true(field.goal_for(Point::new(1, 0)) is Some(_))
+}
+```
+
+This supports deterministic routing for warehouse robots, game units,
+evacuation simulations, and repeated “nearest service point” queries. Invalid
+or blocked goals are ignored, unreachable cells remain explicit, and the field
+can be exported as JSON for inspection.
 
 Graph results can also be exported as Graphviz DOT:
 
@@ -173,6 +202,10 @@ See [Performance Notes](docs/performance-notes.md) for current complexity and
 reproducible benchmark scenarios.
 See [Benchmark Scenarios](docs/benchmark-scenarios.md) for the deterministic
 `moon run cmd/bench` output used to track search behavior across commits.
+See [Flow Fields](docs/flow-fields.md) for cost semantics, complexity, and
+many-agent use cases.
+See [Related Work](docs/related-work.md) for the project boundary within the
+MoonBit ecosystem.
 
 ## Development Tracking
 

@@ -7,6 +7,10 @@ future users can trace the project history without reading every commit.
 
 ### Added
 
+- Added weighted multi-goal flow fields with O(path length) route queries.
+- Added cost, next-step, selected-goal, route, and JSON diagnostic APIs.
+- Added many-agent benchmark evidence comparing one field build with repeated
+  Dijkstra searches.
 - Added `cmd/bench`, a deterministic benchmark-style command for comparing
   grid and graph search behavior across commits.
 - Added benchmark scenario documentation with stable seeds and output fields.
@@ -23,6 +27,14 @@ future users can trace the project history without reading every commit.
 
 ### Changed
 
+- Graph A* now derives an admissible scale from edge weights and node geometry;
+  unsafe coordinate heuristics automatically degrade to Dijkstra behavior.
+- CI now validates native, JavaScript, WebAssembly, and Wasm-GC backends.
+
+### Fixed
+
+- Fixed Graph A* returning a suboptimal route when geometric distance
+  overestimated arbitrary graph edge costs.
 - Grid search now uses the shared priority queue instead of a linear open-set scan.
 - Graph search now uses the shared priority queue instead of a linear open-set scan.
 - Updated performance notes and roadmap to reflect the priority queue optimization.

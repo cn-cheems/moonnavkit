@@ -1,0 +1,187 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "cn-cheems/moonnavkit"
+
+import {
+  "moonbitlang/core/debug",
+}
+
+// Values
+
+// Errors
+
+// Types and methods
+pub(all) enum Algorithm {
+  BFS
+  Dijkstra
+  AStar(Heuristic)
+} derive(Eq, @debug.Debug)
+
+pub(all) struct FlowField {
+  width : Int
+  height : Int
+  goals : Array[Point]
+  costs : Array[Int]
+  next : Array[Int]
+  target : Array[Int]
+  reachable_cells : Int
+  build_visited_count : Int
+} derive(@debug.Debug)
+pub fn FlowField::cost_from(Self, Point) -> Int?
+pub fn FlowField::goal_for(Self, Point) -> Point?
+pub fn FlowField::next_step(Self, Point) -> Point?
+pub fn FlowField::path_from(Self, Point) -> PathResult
+pub fn FlowField::to_json(Self) -> String
+
+pub(all) struct Graph {
+  nodes : Array[GraphNode]
+  edges : Array[GraphEdge]
+} derive(Eq, @debug.Debug)
+pub fn Graph::add_directed_edge(Self, Int, Int, Int) -> Self
+pub fn Graph::add_node(Self, Point) -> Int
+pub fn Graph::add_undirected_edge(Self, Int, Int, Int) -> Self
+pub fn Graph::astar(Self, Int, Int, Heuristic) -> GraphPathResult
+pub fn Graph::bfs(Self, Int, Int) -> GraphPathResult
+pub fn Graph::dijkstra(Self, Int, Int) -> GraphPathResult
+pub fn Graph::edge_count(Self) -> Int
+pub fn Graph::find_path(Self, Int, Int, Algorithm) -> GraphPathResult
+pub fn Graph::is_valid_node(Self, Int) -> Bool
+pub fn Graph::neighbors(Self, Int) -> Array[GraphEdge]
+pub fn Graph::new() -> Self
+pub fn Graph::node_count(Self) -> Int
+pub fn Graph::position(Self, Int) -> Point?
+pub fn Graph::to_dot(Self, GraphPathResult) -> String
+
+pub(all) struct GraphEdge {
+  from : Int
+  to : Int
+  weight : Int
+} derive(Eq, @debug.Debug)
+
+pub(all) struct GraphNode {
+  id : Int
+  position : Point
+} derive(Eq, @debug.Debug)
+
+pub(all) struct GraphPathResult {
+  found : Bool
+  nodes : Array[Int]
+  points : Array[Point]
+  cost : Int
+  visited_count : Int
+  trace : SearchTrace
+} derive(Eq, @debug.Debug)
+pub fn GraphPathResult::not_found(Int) -> Self
+pub fn GraphPathResult::to_json(Self) -> String
+
+pub(all) struct GridMap {
+  width : Int
+  height : Int
+  weights : Array[Int]
+} derive(Eq, @debug.Debug)
+pub fn GridMap::astar(Self, Point, Point, Heuristic) -> PathResult
+pub fn GridMap::bfs(Self, Point, Point) -> PathResult
+pub fn GridMap::blocked_count(Self) -> Int
+pub fn GridMap::cell_count(Self) -> Int
+pub fn GridMap::contains(Self, Point) -> Bool
+pub fn GridMap::cost_at(Self, Point) -> Int?
+pub fn GridMap::dijkstra(Self, Point, Point) -> PathResult
+pub fn GridMap::find_path(Self, Point, Point, Algorithm) -> PathResult
+pub fn GridMap::flow_field(Self, Array[Point]) -> FlowField
+pub fn GridMap::index(Self, Point) -> Int?
+pub fn GridMap::is_blocked(Self, Point) -> Bool
+pub fn GridMap::neighbors4(Self, Point) -> Array[Point]
+pub fn GridMap::new(Int, Int) -> Self
+pub fn GridMap::point_at(Self, Int) -> Point
+pub fn GridMap::random(RandomGridConfig) -> Self
+pub fn GridMap::random_with_clear_points(RandomGridConfig, Array[Point]) -> Self
+pub fn GridMap::set_blocked(Self, Point) -> Self
+pub fn GridMap::set_open(Self, Point) -> Self
+pub fn GridMap::set_weight(Self, Point, Int) -> Self
+pub fn GridMap::stats(Self) -> GridStats
+pub fn GridMap::to_html(Self, PathResult, Int) -> String
+pub fn GridMap::to_svg(Self, PathResult, Int) -> String
+pub fn GridMap::weighted_count(Self) -> Int
+
+pub(all) struct GridStats {
+  cells : Int
+  open_cells : Int
+  blocked_cells : Int
+  weighted_cells : Int
+} derive(Eq, @debug.Debug)
+
+pub(all) enum Heuristic {
+  Manhattan
+  Euclidean
+  Octile
+} derive(Eq, @debug.Debug)
+pub fn Heuristic::estimate(Self, Point, Point) -> Int
+
+pub(all) struct MinPriorityQueue {
+  entries : Array[QueueEntry]
+  mut next_order : Int
+} derive(@debug.Debug)
+pub fn MinPriorityQueue::is_empty(Self) -> Bool
+pub fn MinPriorityQueue::length(Self) -> Int
+pub fn MinPriorityQueue::new() -> Self
+pub fn MinPriorityQueue::peek(Self) -> QueueEntry?
+pub fn MinPriorityQueue::pop(Self) -> QueueEntry?
+pub fn MinPriorityQueue::push(Self, Int, Int) -> Unit
+
+pub(all) struct PathResult {
+  found : Bool
+  path : Array[Point]
+  cost : Int
+  visited_count : Int
+  trace : SearchTrace
+} derive(Eq, @debug.Debug)
+pub fn PathResult::not_found(Int) -> Self
+pub fn PathResult::to_json(Self) -> String
+
+pub(all) struct Point {
+  x : Int
+  y : Int
+} derive(Eq, @debug.Debug)
+pub fn Point::manhattan(Self, Self) -> Int
+pub fn Point::new(Int, Int) -> Self
+pub fn Point::to_json(Self) -> String
+
+pub(all) struct QueueEntry {
+  item : Int
+  priority : Int
+  order : Int
+} derive(Eq, @debug.Debug)
+
+pub(all) struct RandomGridConfig {
+  width : Int
+  height : Int
+  seed : Int
+  blocked_percent : Int
+  weighted_percent : Int
+  max_weight : Int
+} derive(Eq, @debug.Debug)
+pub fn RandomGridConfig::new(Int, Int, Int) -> Self
+pub fn RandomGridConfig::with_blocked_percent(Self, Int) -> Self
+pub fn RandomGridConfig::with_max_weight(Self, Int) -> Self
+pub fn RandomGridConfig::with_weighted_percent(Self, Int) -> Self
+
+pub(all) struct SearchStep {
+  order : Int
+  point : Point
+  cost : Int
+  score : Int
+} derive(Eq, @debug.Debug)
+pub fn SearchStep::new(Int, Point, Int, Int) -> Self
+pub fn SearchStep::to_json(Self) -> String
+
+pub(all) struct SearchTrace {
+  steps : Array[SearchStep]
+} derive(Eq, @debug.Debug)
+pub fn SearchTrace::length(Self) -> Int
+pub fn SearchTrace::new() -> Self
+pub fn SearchTrace::push_step(Self, Int, Point, Int, Int) -> Unit
+pub fn SearchTrace::to_json(Self) -> String
+
+// Type aliases
+
+// Traits
+

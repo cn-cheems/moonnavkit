@@ -7,27 +7,39 @@ on:
 jobs:
   build-test:
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        target: [native, wasm, wasm-gc, js]
 
     steps:
       - name: Checkout
         uses: actions/checkout@v5
 
       - name: Set up MoonBit
-        run: |
-          curl -fsSL https://cli.moonbitlang.com/install/unix.sh | bash
-          echo "$HOME/.moon/bin" >> "$GITHUB_PATH"
+        uses: hustcer/setup-moonbit@v1
 
       - name: Show toolchain
         run: moon version --all
 
-      - name: Update dependencies
-        run: moon update
+      - name: Check ${{ matrix.target }}
+        run: moon check --target ${{ matrix.target }}
 
-      - name: Check
-        run: moon check
+      - name: Test ${{ matrix.target }}
+        run: moon test --target ${{ matrix.target }}
 
-      - name: Test
-        run: moon test
+      - name: Verify package metadata
+        if: matrix.target == 'native'
+        run: moon package --list
 
-      - name: Run demo
-        run: moon run cmd/main
+      - name: Verify generated public API
+        if: matrix.target == 'native'
+        run: |
+          moon info
+          git diff --exit-code -- '*.mbti'
+
+      - name: Run deterministic demos
+        if: matrix.target == 'native'
+        run: |
+          moon run cmd/main
+          moon run cmd/bench

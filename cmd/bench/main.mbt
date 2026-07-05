@@ -6,6 +6,7 @@ fn main {
   run_weighted_grid()
   run_dense_grid()
   run_graph_route()
+  run_many_agent_flow()
 }
 
 ///|
@@ -96,6 +97,46 @@ fn run_graph_route() -> Unit {
     "graph-route-5",
     "astar-manhattan",
     graph.astar(a, e, @nav.Heuristic::Manhattan),
+  )
+}
+
+///|
+/// Compares repeated shortest-path searches with one reusable flow-field build.
+fn run_many_agent_flow() -> Unit {
+  let goal = @nav.Point::new(31, 31)
+  let config = @nav.RandomGridConfig::new(32, 32, 707)
+    .with_blocked_percent(0)
+    .with_weighted_percent(45)
+    .with_max_weight(9)
+  let grid = @nav.GridMap::random_with_clear_points(config, [goal])
+  let starts : Array[@nav.Point] = []
+  for y = 0; y < 32; y = y + 4 {
+    for x = 0; x < 32; x = x + 4 {
+      starts.push(@nav.Point::new(x, y))
+    }
+  }
+
+  let mut repeated_visited = 0
+  let mut repeated_cost = 0
+  for i = 0; i < starts.length(); i = i + 1 {
+    let result = grid.dijkstra(starts[i], goal)
+    repeated_visited = repeated_visited + result.visited_count
+    repeated_cost = repeated_cost + result.cost
+  }
+
+  let field = grid.flow_field([goal])
+  let mut query_steps = 0
+  let mut flow_cost = 0
+  for i = 0; i < starts.length(); i = i + 1 {
+    let result = field.path_from(starts[i])
+    query_steps = query_steps + result.visited_count
+    flow_cost = flow_cost + result.cost
+  }
+  println(
+    "many-agent-32x32-seed707,repeated-dijkstra,true,\{repeated_cost},\{repeated_visited},0,\{starts.length()}",
+  )
+  println(
+    "many-agent-32x32-seed707,flow-field-build+queries,true,\{flow_cost},\{field.build_visited_count},\{query_steps},\{starts.length()}",
   )
 }
 
