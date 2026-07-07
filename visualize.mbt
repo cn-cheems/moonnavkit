@@ -9,10 +9,7 @@ fn normalized_cell_size(cell_size : Int) -> Int {
 
 ///|
 fn point_center(point : Point, cell_size : Int) -> (Int, Int) {
-  (
-    point.x * cell_size + cell_size / 2,
-    point.y * cell_size + cell_size / 2,
-  )
+  (point.x * cell_size + cell_size / 2, point.y * cell_size + cell_size / 2)
 }
 
 ///|
@@ -48,7 +45,7 @@ fn write_rect(
   size : Int,
   fill : String,
   stroke : String,
-  opacity : String
+  opacity : String,
 ) -> Unit {
   buf.write_string(
     "<rect x=\"\{x}\" y=\"\{y}\" width=\"\{size}\" height=\"\{size}\" fill=\"\{fill}\" stroke=\"\{stroke}\" opacity=\"\{opacity}\"/>",
@@ -60,7 +57,7 @@ fn write_circle(
   buf : StringBuilder,
   point : Point,
   cell_size : Int,
-  fill : String
+  fill : String,
 ) -> Unit {
   let (cx, cy) = point_center(point, cell_size)
   let radius = cell_size / 4
@@ -73,7 +70,7 @@ fn write_circle(
 fn write_path_polyline(
   buf : StringBuilder,
   path : Array[Point],
-  cell_size : Int
+  cell_size : Int,
 ) -> Unit {
   if path.length() <= 1 {
     return
@@ -96,7 +93,7 @@ fn GridMap::write_base_cells(
   self : GridMap,
   buf : StringBuilder,
   result : PathResult,
-  cell_size : Int
+  cell_size : Int,
 ) -> Unit {
   for y = 0; y < self.height; y = y + 1 {
     for x = 0; x < self.width; x = x + 1 {
@@ -114,7 +111,15 @@ fn GridMap::write_base_cells(
         None => ()
       }
       if point_in_array(point, result.path) {
-        write_rect(buf, px + 2, py + 2, cell_size - 4, "#bbf7d0", "none", "0.75")
+        write_rect(
+          buf,
+          px + 2,
+          py + 2,
+          cell_size - 4,
+          "#bbf7d0",
+          "none",
+          "0.75",
+        )
       }
     }
   }
@@ -124,7 +129,7 @@ fn GridMap::write_base_cells(
 fn write_trace_cells(
   buf : StringBuilder,
   trace : SearchTrace,
-  cell_size : Int
+  cell_size : Int,
 ) -> Unit {
   let inset = cell_size / 5
   let trace_size = cell_size - inset * 2
@@ -141,7 +146,7 @@ fn write_trace_cells(
 pub fn GridMap::to_svg(
   self : GridMap,
   result : PathResult,
-  cell_size : Int
+  cell_size : Int,
 ) -> String {
   let size = normalized_cell_size(cell_size)
   let width = self.width * size
@@ -167,15 +172,21 @@ pub fn GridMap::to_svg(
 pub fn GridMap::to_html(
   self : GridMap,
   result : PathResult,
-  cell_size : Int
+  cell_size : Int,
 ) -> String {
   let svg = self.to_svg(result, cell_size)
   let json = result.to_json()
   let buf = StringBuilder(size_hint=svg.length() + json.length() + 512)
-  buf.write_string("<!doctype html><html lang=\"en\"><head><meta charset=\"utf-8\"/>")
-  buf.write_string("<meta name=\"viewport\" content=\"width=device-width,initial-scale=1\"/>")
+  buf.write_string(
+    "<!doctype html><html lang=\"en\"><head><meta charset=\"utf-8\"/>",
+  )
+  buf.write_string(
+    "<meta name=\"viewport\" content=\"width=device-width,initial-scale=1\"/>",
+  )
   buf.write_string("<title>MoonNavKit Replay</title>")
-  buf.write_string("<style>body{margin:0;font-family:system-ui,sans-serif;background:#f8fafc;color:#0f172a}main{padding:24px}svg{max-width:100%;height:auto;border:1px solid #cbd5e1;background:white}</style>")
+  buf.write_string(
+    "<style>body{margin:0;font-family:system-ui,sans-serif;background:#f8fafc;color:#0f172a}main{padding:24px}svg{max-width:100%;height:auto;border:1px solid #cbd5e1;background:white}</style>",
+  )
   buf.write_string("</head><body><main><h1>MoonNavKit Replay</h1>")
   buf.write_string(svg)
   buf.write_string("<script type=\"application/json\" id=\"moonnavkit-data\">")
@@ -208,7 +219,7 @@ fn Graph::write_dot_nodes(self : Graph, buf : StringBuilder) -> Unit {
 fn Graph::write_dot_edges(
   self : Graph,
   buf : StringBuilder,
-  result : GraphPathResult
+  result : GraphPathResult,
 ) -> Unit {
   for i = 0; i < self.edges.length(); i = i + 1 {
     let edge = self.edges[i]
@@ -224,17 +235,25 @@ fn Graph::write_dot_edges(
 ///|
 /// Exports a graph pathfinding result as Graphviz DOT.
 pub fn Graph::to_dot(self : Graph, result : GraphPathResult) -> String {
-  let buf = StringBuilder(size_hint=256 + self.node_count() * 48 + self.edge_count() * 64)
+  let buf = StringBuilder(
+    size_hint=256 + self.node_count() * 48 + self.edge_count() * 64,
+  )
   buf.write_string("digraph MoonNavKit {\n")
   buf.write_string("  graph [rankdir=LR];\n")
-  buf.write_string("  node [shape=circle, style=filled, fillcolor=\"#f8fafc\"];\n")
+  buf.write_string(
+    "  node [shape=circle, style=filled, fillcolor=\"#f8fafc\"];\n",
+  )
   buf.write_string("  edge [color=\"#475569\"];\n")
   self.write_dot_nodes(buf)
   self.write_dot_edges(buf, result)
   if result.found {
-    buf.write_string("  label=\"cost=\{result.cost}, visited=\{result.visited_count}\";\n")
+    buf.write_string(
+      "  label=\"cost=\{result.cost}, visited=\{result.visited_count}\";\n",
+    )
   } else {
-    buf.write_string("  label=\"path not found, visited=\{result.visited_count}\";\n")
+    buf.write_string(
+      "  label=\"path not found, visited=\{result.visited_count}\";\n",
+    )
   }
   buf.write_string("}\n")
   buf.to_string()

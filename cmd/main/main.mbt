@@ -38,10 +38,9 @@ fn main {
     .with_blocked_percent(5)
     .with_weighted_percent(35)
     .with_max_weight(8)
-  let random_grid = @nav.GridMap::random_with_clear_points(
-    config,
-    [random_start, random_goal],
-  )
+  let random_grid = @nav.GridMap::random_with_clear_points(config, [
+    random_start, random_goal,
+  ])
   let stats = random_grid.stats()
   let random_result = random_grid.astar(
     random_start,

@@ -78,6 +78,7 @@ pub(all) struct GridMap {
   height : Int
   weights : Array[Int]
 } derive(Eq, @debug.Debug)
+pub fn GridMap::analyze_path(Self, Array[Point]) -> PathMetrics
 pub fn GridMap::astar(Self, Point, Point, Heuristic) -> PathResult
 pub fn GridMap::bfs(Self, Point, Point) -> PathResult
 pub fn GridMap::blocked_count(Self) -> Int
@@ -126,6 +127,14 @@ pub fn MinPriorityQueue::new() -> Self
 pub fn MinPriorityQueue::peek(Self) -> QueueEntry?
 pub fn MinPriorityQueue::pop(Self) -> QueueEntry?
 pub fn MinPriorityQueue::push(Self, Int, Int) -> Unit
+
+pub(all) struct PathMetrics {
+  valid : Bool
+  steps : Int
+  cost : Int
+  turns : Int
+  invalid_at : Point?
+} derive(Eq, @debug.Debug)
 
 pub(all) struct PathResult {
   found : Bool

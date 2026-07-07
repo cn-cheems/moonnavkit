@@ -47,12 +47,7 @@ test "flow field accepts each valid goal once" {
   let grid = GridMap::new(2, 2)
   let goal = Point::new(1, 1)
   ignore(grid.set_blocked(Point::new(0, 0)))
-  let field = grid.flow_field([
-    goal,
-    goal,
-    Point::new(-1, 0),
-    Point::new(0, 0),
-  ])
+  let field = grid.flow_field([goal, goal, Point::new(-1, 0), Point::new(0, 0)])
   assert_eq(field.goals.length(), 1)
   assert_eq(field.path_from(goal).cost, 0)
   assert_eq(field.path_from(goal).path.length(), 1)

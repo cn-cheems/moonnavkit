@@ -12,7 +12,7 @@ pub fn SearchStep::new(
   order : Int,
   point : Point,
   cost : Int,
-  score : Int
+  score : Int,
 ) -> SearchStep {
   { order, point, cost, score }
 }
@@ -49,7 +49,7 @@ pub fn SearchTrace::push_step(
   order : Int,
   point : Point,
   cost : Int,
-  score : Int
+  score : Int,
 ) -> Unit {
   self.steps.push(SearchStep::new(order, point, cost, score))
 }
@@ -82,10 +82,14 @@ fn write_points_json(buf : StringBuilder, points : Array[Point]) -> Unit {
 
 ///|
 pub fn PathResult::to_json(self : PathResult) -> String {
-  let buf = StringBuilder(size_hint=128 + self.path.length() * 24 + self.trace.length() * 64)
+  let buf = StringBuilder(
+    size_hint=128 + self.path.length() * 24 + self.trace.length() * 64,
+  )
   buf.write_string("{\"found\":")
   buf.write_string(if self.found { "true" } else { "false" })
-  buf.write_string(",\"cost\":\{self.cost},\"visited_count\":\{self.visited_count},\"path\":")
+  buf.write_string(
+    ",\"cost\":\{self.cost},\"visited_count\":\{self.visited_count},\"path\":",
+  )
   write_points_json(buf, self.path)
   buf.write_string(",\"trace\":")
   buf.write_string(self.trace.to_json())
@@ -107,10 +111,14 @@ fn write_ints_json(buf : StringBuilder, values : Array[Int]) -> Unit {
 
 ///|
 pub fn GraphPathResult::to_json(self : GraphPathResult) -> String {
-  let buf = StringBuilder(size_hint=128 + self.points.length() * 24 + self.trace.length() * 64)
+  let buf = StringBuilder(
+    size_hint=128 + self.points.length() * 24 + self.trace.length() * 64,
+  )
   buf.write_string("{\"found\":")
   buf.write_string(if self.found { "true" } else { "false" })
-  buf.write_string(",\"cost\":\{self.cost},\"visited_count\":\{self.visited_count},\"nodes\":")
+  buf.write_string(
+    ",\"cost\":\{self.cost},\"visited_count\":\{self.visited_count},\"nodes\":",
+  )
   write_ints_json(buf, self.nodes)
   buf.write_string(",\"points\":")
   write_points_json(buf, self.points)

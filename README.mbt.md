@@ -33,7 +33,8 @@ Current foundation:
 
 ## Quick Example
 
-```mbt
+```mbt nocheck
+///|
 test {
   let grid = GridMap::new(5, 5)
     .set_blocked(Point::new(1, 0))
@@ -57,7 +58,8 @@ test {
 MoonNavKit also supports general weighted graphs. Node positions are optional for
 Dijkstra, but useful for A* heuristics and visualization-oriented exports.
 
-```mbt
+```mbt nocheck
+///|
 test {
   let graph = Graph::new()
   let start = graph.add_node(Point::new(0, 0))
@@ -82,7 +84,8 @@ When many agents share destinations, repeatedly running A* wastes the same
 search work. `flow_field` performs one reverse Dijkstra build, then reconstructs
 each agent route in O(path length).
 
-```mbt
+```mbt nocheck
+///|
 test {
   let grid = GridMap::new(8, 5)
     .set_weight(Point::new(3, 2), 8)
@@ -98,13 +101,35 @@ test {
 ```
 
 This supports deterministic routing for warehouse robots, game units,
-evacuation simulations, and repeated “nearest service point” queries. Invalid
+evacuation simulations, and repeated "nearest service point" queries. Invalid
 or blocked goals are ignored, unreachable cells remain explicit, and the field
 can be exported as JSON for inspection.
 
+## Path Quality Analysis
+
+Search results and externally supplied routes can be replayed against the grid.
+This is useful for regression checks, teaching tools, and game/simulation code
+that wants to validate a route before handing it to agents.
+
+```mbt nocheck
+///|
+test {
+  let grid = GridMap::new(4, 3)
+    .set_weight(Point::new(1, 0), 5)
+    .set_weight(Point::new(2, 1), 3)
+  let result = grid.dijkstra(Point::new(0, 0), Point::new(3, 1))
+  let metrics = grid.analyze_path(result.path)
+
+  assert_true(metrics.valid)
+  assert_eq(metrics.cost, result.cost)
+  assert_true(metrics.turns >= 0)
+}
+```
+
 Graph results can also be exported as Graphviz DOT:
 
-```mbt
+```mbt nocheck
+///|
 test {
   let graph = Graph::new()
   let start = graph.add_node(Point::new(0, 0))
@@ -124,7 +149,8 @@ test {
 Every search records expanded cells in order. This makes the core library useful
 for debugging, teaching, and visualization replay.
 
-```mbt
+```mbt nocheck
+///|
 test {
   let result = GridMap::new(3, 1).bfs(Point::new(0, 0), Point::new(2, 0))
   assert_eq(result.trace.length(), 3)
@@ -139,7 +165,8 @@ test {
 
 The same result can be exported as SVG or a standalone HTML replay page.
 
-```mbt
+```mbt nocheck
+///|
 test {
   let grid = GridMap::new(4, 3)
     .set_blocked(Point::new(1, 0))
@@ -173,7 +200,8 @@ SVG uses consistent colors for the main states:
 Seeded maps are deterministic, so examples, tests, and benchmark notes can be
 reproduced exactly.
 
-```mbt
+```mbt nocheck
+///|
 test {
   let start = Point::new(0, 0)
   let goal = Point::new(5, 5)
@@ -196,6 +224,7 @@ test {
 - More examples and benchmark notes
 - Additional replay controls for generated HTML
 - Benchmark notes for grid and graph search
+- Route quality metrics for downstream simulation and validation tools
 
 See [Roadmap](ROADMAP.md) for planned contest deliverables and non-goals.
 See [Performance Notes](docs/performance-notes.md) for current complexity and

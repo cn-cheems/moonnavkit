@@ -19,6 +19,13 @@ repository = "https://github.com/cn-cheems/moonnavkit"
 
 license = "Apache-2.0"
 
-keywords = ["pathfinding", "astar", "flow-field", "graph", "grid", "visualization"]
+keywords = [
+  "pathfinding",
+  "astar",
+  "flow-field",
+  "graph",
+  "grid",
+  "visualization",
+]
 
 description = "Weighted path planning, multi-goal flow fields, and search visualization for MoonBit."

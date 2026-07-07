@@ -32,7 +32,7 @@ pub fn MinPriorityQueue::is_empty(self : MinPriorityQueue) -> Bool {
 pub fn MinPriorityQueue::push(
   self : MinPriorityQueue,
   item : Int,
-  priority : Int
+  priority : Int,
 ) -> Unit {
   self.entries.push({ item, priority, order: self.next_order })
   self.next_order = self.next_order + 1
@@ -100,14 +100,22 @@ fn MinPriorityQueue::sift_down(self : MinPriorityQueue, start : Int) -> Unit {
 }
 
 ///|
-fn MinPriorityQueue::less(self : MinPriorityQueue, left : Int, right : Int) -> Bool {
+fn MinPriorityQueue::less(
+  self : MinPriorityQueue,
+  left : Int,
+  right : Int,
+) -> Bool {
   let a = self.entries[left]
   let b = self.entries[right]
   a.priority < b.priority || (a.priority == b.priority && a.order < b.order)
 }
 
 ///|
-fn MinPriorityQueue::swap(self : MinPriorityQueue, left : Int, right : Int) -> Unit {
+fn MinPriorityQueue::swap(
+  self : MinPriorityQueue,
+  left : Int,
+  right : Int,
+) -> Unit {
   let tmp = self.entries[left]
   self.entries[left] = self.entries[right]
   self.entries[right] = tmp

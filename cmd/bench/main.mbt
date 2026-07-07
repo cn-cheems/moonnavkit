@@ -13,7 +13,7 @@ fn main {
 fn print_grid_result(
   scenario : String,
   algorithm : String,
-  result : @nav.PathResult
+  result : @nav.PathResult,
 ) -> Unit {
   println(
     "\{scenario},\{algorithm},\{result.found},\{result.cost},\{result.visited_count},\{result.trace.length()},\{result.path.length()}",
@@ -24,7 +24,7 @@ fn print_grid_result(
 fn print_graph_result(
   scenario : String,
   algorithm : String,
-  result : @nav.GraphPathResult
+  result : @nav.GraphPathResult,
 ) -> Unit {
   println(
     "\{scenario},\{algorithm},\{result.found},\{result.cost},\{result.visited_count},\{result.trace.length()},\{result.nodes.length()}",
@@ -54,7 +54,11 @@ fn run_weighted_grid() -> Unit {
     .with_weighted_percent(60)
     .with_max_weight(9)
   let grid = @nav.GridMap::random_with_clear_points(config, [start, goal])
-  print_grid_result("weighted-32x32-seed404", "dijkstra", grid.dijkstra(start, goal))
+  print_grid_result(
+    "weighted-32x32-seed404",
+    "dijkstra",
+    grid.dijkstra(start, goal),
+  )
   print_grid_result(
     "weighted-32x32-seed404",
     "astar-manhattan",
@@ -139,4 +143,3 @@ fn run_many_agent_flow() -> Unit {
     "many-agent-32x32-seed707,flow-field-build+queries,true,\{flow_cost},\{field.build_visited_count},\{query_steps},\{starts.length()}",
   )
 }
-

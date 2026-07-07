@@ -41,7 +41,7 @@ pub(all) struct RandomGridConfig {
 pub fn RandomGridConfig::new(
   width : Int,
   height : Int,
-  seed : Int
+  seed : Int,
 ) -> RandomGridConfig {
   {
     width,
@@ -56,7 +56,7 @@ pub fn RandomGridConfig::new(
 ///|
 pub fn RandomGridConfig::with_blocked_percent(
   self : RandomGridConfig,
-  blocked_percent : Int
+  blocked_percent : Int,
 ) -> RandomGridConfig {
   {
     width: self.width,
@@ -71,7 +71,7 @@ pub fn RandomGridConfig::with_blocked_percent(
 ///|
 pub fn RandomGridConfig::with_weighted_percent(
   self : RandomGridConfig,
-  weighted_percent : Int
+  weighted_percent : Int,
 ) -> RandomGridConfig {
   {
     width: self.width,
@@ -86,7 +86,7 @@ pub fn RandomGridConfig::with_weighted_percent(
 ///|
 pub fn RandomGridConfig::with_max_weight(
   self : RandomGridConfig,
-  max_weight : Int
+  max_weight : Int,
 ) -> RandomGridConfig {
   {
     width: self.width,
@@ -94,7 +94,11 @@ pub fn RandomGridConfig::with_max_weight(
     seed: self.seed,
     blocked_percent: self.blocked_percent,
     weighted_percent: self.weighted_percent,
-    max_weight: if max_weight < 2 { 2 } else { max_weight },
+    max_weight: if max_weight < 2 {
+      2
+    } else {
+      max_weight
+    },
   }
 }
 
@@ -162,7 +166,8 @@ pub fn GridMap::random(config : RandomGridConfig) -> GridMap {
       } else {
         let weight_roll = cell_roll(config.seed, x, y, 2, 100)
         if weight_roll < config.weighted_percent {
-          let weight = 2 + cell_roll(config.seed, x, y, 3, config.max_weight - 1)
+          let weight = 2 +
+            cell_roll(config.seed, x, y, 3, config.max_weight - 1)
           grid.set_weight(point, weight) |> ignore
         }
       }
@@ -175,7 +180,7 @@ pub fn GridMap::random(config : RandomGridConfig) -> GridMap {
 /// Builds a deterministic grid and guarantees important cells stay open.
 pub fn GridMap::random_with_clear_points(
   config : RandomGridConfig,
-  clear_points : Array[Point]
+  clear_points : Array[Point],
 ) -> GridMap {
   let grid = GridMap::random(config)
   for i = 0; i < clear_points.length(); i = i + 1 {

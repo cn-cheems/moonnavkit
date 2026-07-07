@@ -5,8 +5,16 @@ future users can trace the project history without reading every commit.
 
 ## Unreleased
 
+### Fixed
+
+- Replaced the CI workflow with the official MoonBit community template style
+  and removed unsupported `--deny-warn` command arguments from the review path.
+- Removed the local self-import left by package verification.
+
 ### Added
 
+- Added `GridMap::analyze_path` for route legality, cost, step, and turn
+  analysis on externally supplied or generated paths.
 - Added weighted multi-goal flow fields with O(path length) route queries.
 - Added cost, next-step, selected-goal, route, and JSON diagnostic APIs.
 - Added many-agent benchmark evidence comparing one field build with repeated

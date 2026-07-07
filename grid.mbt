@@ -24,10 +24,7 @@ pub fn GridMap::cell_count(self : GridMap) -> Int {
 
 ///|
 pub fn GridMap::contains(self : GridMap, point : Point) -> Bool {
-  point.x >= 0 &&
-  point.y >= 0 &&
-  point.x < self.width &&
-  point.y < self.height
+  point.x >= 0 && point.y >= 0 && point.x < self.width && point.y < self.height
 }
 
 ///|
@@ -54,12 +51,13 @@ pub fn GridMap::set_blocked(self : GridMap, point : Point) -> GridMap {
 }
 
 ///|
-pub fn GridMap::set_weight(self : GridMap, point : Point, weight : Int) -> GridMap {
+pub fn GridMap::set_weight(
+  self : GridMap,
+  point : Point,
+  weight : Int,
+) -> GridMap {
   match self.index(point) {
-    Some(index) =>
-      if weight > 0 {
-        self.weights[index] = weight
-      }
+    Some(index) => if weight > 0 { self.weights[index] = weight }
     None => ()
   }
   self
@@ -109,7 +107,7 @@ pub fn GridMap::find_path(
   self : GridMap,
   start : Point,
   goal : Point,
-  algorithm : Algorithm
+  algorithm : Algorithm,
 ) -> PathResult {
   match algorithm {
     BFS => self.bfs(start, goal)
@@ -124,7 +122,11 @@ pub fn GridMap::bfs(self : GridMap, start : Point, goal : Point) -> PathResult {
 }
 
 ///|
-pub fn GridMap::dijkstra(self : GridMap, start : Point, goal : Point) -> PathResult {
+pub fn GridMap::dijkstra(
+  self : GridMap,
+  start : Point,
+  goal : Point,
+) -> PathResult {
   self.search(start, goal, Dijkstra)
 }
 
@@ -133,7 +135,7 @@ pub fn GridMap::astar(
   self : GridMap,
   start : Point,
   goal : Point,
-  heuristic : Heuristic
+  heuristic : Heuristic,
 ) -> PathResult {
   self.search(start, goal, AStar(heuristic))
 }
@@ -143,7 +145,7 @@ fn GridMap::search(
   self : GridMap,
   start : Point,
   goal : Point,
-  algorithm : Algorithm
+  algorithm : Algorithm,
 ) -> PathResult {
   guard self.contains(start) && self.contains(goal) else {
     return PathResult::not_found(0)
@@ -194,7 +196,10 @@ fn GridMap::search(
         if candidate < dist[next_index] {
           dist[next_index] = candidate
           parent[next_index] = current
-          open.push(next_index, self.score_for(next_index, dist, goal, algorithm))
+          open.push(
+            next_index,
+            self.score_for(next_index, dist, goal, algorithm),
+          )
         }
       }
     }
@@ -222,7 +227,7 @@ fn GridMap::take_next_open(
   dist : Array[Int],
   closed : Array[Bool],
   goal : Point,
-  algorithm : Algorithm
+  algorithm : Algorithm,
 ) -> Int {
   let mut selected = -1
   let mut done = false
@@ -235,7 +240,7 @@ fn GridMap::take_next_open(
           selected = entry.item
           done = true
         }
-      }
+    }
   }
   selected
 }
@@ -246,7 +251,7 @@ fn GridMap::score_for(
   index : Int,
   dist : Array[Int],
   goal : Point,
-  algorithm : Algorithm
+  algorithm : Algorithm,
 ) -> Int {
   let point = self.point_at(index)
   match algorithm {
@@ -259,7 +264,7 @@ fn GridMap::score_for(
 fn GridMap::reconstruct_path(
   self : GridMap,
   parent : Array[Int],
-  goal_index : Int
+  goal_index : Int,
 ) -> Array[Point] {
   let reversed : Array[Point] = []
   let mut current = goal_index

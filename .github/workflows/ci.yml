@@ -1,45 +1,64 @@
-name: CI
+name: Check and Test
 
 on:
   push:
+    branches:
+      - main
   pull_request:
 
 jobs:
-  build-test:
-    runs-on: ubuntu-latest
+  build:
+    name: moonbit-${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    permissions:
+      contents: read
     strategy:
       fail-fast: false
       matrix:
-        target: [native, wasm, wasm-gc, js]
+        os: [ubuntu-latest, macos-latest, windows-latest]
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v5
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
 
-      - name: Set up MoonBit
-        uses: hustcer/setup-moonbit@v1
+      - name: Install MoonBit on Unix
+        if: ${{ matrix.os != 'windows-latest' }}
+        run: |
+          curl -fsSL https://cli.moonbitlang.com/install/unix.sh | bash
+          echo "$HOME/.moon/bin" >> $GITHUB_PATH
 
-      - name: Show toolchain
-        run: moon version --all
+      - name: Install MoonBit on Windows
+        if: ${{ matrix.os == 'windows-latest' }}
+        shell: pwsh
+        run: |
+          Set-ExecutionPolicy RemoteSigned -Scope CurrentUser
+          irm https://cli.moonbitlang.com/install/powershell.ps1 | iex
+          "C:\Users\runneradmin\.moon\bin" | Out-File -FilePath $env:GITHUB_PATH -Append
 
-      - name: Check ${{ matrix.target }}
-        run: moon check --target ${{ matrix.target }}
+      - name: Post install
+        run: |
+          moon version --all
+          moon update
 
-      - name: Test ${{ matrix.target }}
-        run: moon test --target ${{ matrix.target }}
+      - name: Moon check
+        run: moon check --target all
 
-      - name: Verify package metadata
-        if: matrix.target == 'native'
-        run: moon package --list
+      - name: Moon test
+        run: moon test --target all
 
-      - name: Verify generated public API
-        if: matrix.target == 'native'
+      - name: Format check
+        run: |
+          moon fmt
+          git diff --exit-code
+
+      - name: API metadata check
         run: |
           moon info
-          git diff --exit-code -- '*.mbti'
+          git diff --exit-code
 
       - name: Run deterministic demos
-        if: matrix.target == 'native'
+        if: ${{ matrix.os == 'ubuntu-latest' }}
         run: |
           moon run cmd/main
           moon run cmd/bench
