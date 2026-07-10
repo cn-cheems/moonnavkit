@@ -7,12 +7,17 @@ future users can trace the project history without reading every commit.
 
 ### Fixed
 
+- Removed per-expansion neighbor-array allocation from the grid search hot path.
 - Replaced the CI workflow with the official MoonBit community template style
   and removed unsupported `--deny-warn` command arguments from the review path.
 - Removed the local self-import left by package verification.
 
 ### Added
 
+- Added open trait interfaces for map-like inputs, solver strategy values, and
+  path smoothing strategy values.
+- Added a PowerShell performance report script for wasm, wasm-gc, JS, native
+  build availability, command timings, and artifact sizes.
 - Added line-of-sight checks and waypoint compression for turning raw
   cell-by-cell search paths into executable route waypoints.
 - Added path post-processing tests and a deterministic compression benchmark

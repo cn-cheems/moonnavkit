@@ -6,6 +6,9 @@ import {
 }
 
 // Values
+pub fn smooth_with(LineOfSightSmoother, GridMap, Array[Point]) -> Array[Point]
+
+pub fn solve_with(GridSolver, GridMap, Point, Point) -> PathResult
 
 // Errors
 
@@ -124,6 +127,12 @@ pub fn GridMap::to_html(Self, PathResult, Int) -> String
 pub fn GridMap::to_svg(Self, PathResult, Int) -> String
 pub fn GridMap::weighted_count(Self) -> Int
 
+pub(all) struct GridSolver {
+  algorithm : Algorithm
+} derive(Eq, @debug.Debug)
+pub fn GridSolver::new(Algorithm) -> Self
+pub impl PathSolver for GridSolver
+
 pub(all) struct GridStats {
   cells : Int
   open_cells : Int
@@ -137,6 +146,12 @@ pub(all) enum Heuristic {
   Octile
 } derive(Eq, @debug.Debug)
 pub fn Heuristic::estimate(Self, Point, Point) -> Int
+
+pub(all) struct LineOfSightSmoother {
+  agent : AgentProfile
+} derive(Eq, @debug.Debug)
+pub fn LineOfSightSmoother::new(AgentProfile) -> Self
+pub impl PathSmoother for LineOfSightSmoother
 
 pub(all) struct MinPriorityQueue {
   entries : Array[QueueEntry]
@@ -215,4 +230,17 @@ pub fn SearchTrace::to_json(Self) -> String
 // Type aliases
 
 // Traits
+pub(open) trait NavigationMap {
+  fn contains(Self, Point) -> Bool
+  fn cost_at(Self, Point) -> Int?
+  fn neighbors4(Self, Point) -> Array[Point]
+}
+
+pub(open) trait PathSmoother {
+  fn smooth(Self, GridMap, Array[Point]) -> Array[Point]
+}
+
+pub(open) trait PathSolver {
+  fn solve(Self, GridMap, Point, Point) -> PathResult
+}
 

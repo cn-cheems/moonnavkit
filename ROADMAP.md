@@ -12,6 +12,7 @@ while leaving room for stronger engineering work.
 - BFS, Dijkstra, and A* for weighted graphs.
 - Manhattan, Euclidean, and Octile heuristics.
 - `PathResult`, `GraphPathResult`, and `SearchTrace`.
+- `NavigationMap`, `PathSolver`, and `PathSmoother` extension traits.
 - JSON export for path results and trace data.
 - SVG export for grid visualizations.
 - Standalone HTML replay export.
@@ -20,7 +21,8 @@ while leaving room for stronger engineering work.
 - Stable min-priority queue for grid and graph open sets.
 - Clearance-aware routing for non-point agents.
 - Line-of-sight route validation and waypoint compression.
-- 49 passing tests.
+- Hot-path grid search avoids per-expansion neighbor-array allocation.
+- 51 passing tests.
 
 ## Near-Term Work
 

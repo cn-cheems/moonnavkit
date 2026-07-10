@@ -22,10 +22,13 @@ license = "Apache-2.0"
 keywords = [
   "pathfinding",
   "astar",
+  "clearance",
+  "cost-map",
   "flow-field",
   "graph",
   "grid",
+  "routing",
   "visualization",
 ]
 
-description = "Weighted path planning, multi-goal flow fields, and search visualization for MoonBit."
+description = "Weighted path planning, clearance-aware routing, flow fields, path compression, and search visualization for MoonBit."

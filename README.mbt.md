@@ -80,6 +80,29 @@ test {
 }
 ```
 
+## Trait-Oriented Extension Points
+
+MoonNavKit exposes open traits for the parts users usually want to swap:
+
+- `NavigationMap` for map-like inputs
+- `PathSolver` for algorithm strategy values
+- `PathSmoother` for post-processing strategies
+
+```mbt nocheck
+///|
+test {
+  let solver = GridSolver::new(Algorithm::AStar(Heuristic::Manhattan))
+  let grid = GridMap::new(4, 1)
+  let result = solve_with(solver, grid, Point::new(0, 0), Point::new(3, 0))
+
+  assert_true(result.found)
+}
+```
+
+The default `GridMap` remains simple and efficient, while the trait layer gives
+library users a path toward custom maps, custom solvers, and custom smoothing
+without changing MoonNavKit's core algorithms.
+
 ## Many-Agent Flow Fields
 
 When many agents share destinations, repeatedly running A* wastes the same
@@ -284,6 +307,10 @@ test {
 See [Roadmap](ROADMAP.md) for planned contest deliverables and non-goals.
 See [Performance Notes](docs/performance-notes.md) for current complexity and
 reproducible benchmark scenarios.
+See [Performance Benchmarking](docs/performance-benchmarking.md) for the
+three-backend report script and hot-path allocation notes.
+See [Architecture](docs/architecture.md) for the trait-oriented extension
+points and current hot-path design.
 See [Benchmark Scenarios](docs/benchmark-scenarios.md) for the deterministic
 `moon run cmd/bench` output used to track search behavior across commits.
 See [Flow Fields](docs/flow-fields.md) for cost semantics, complexity, and

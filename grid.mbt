@@ -182,27 +182,46 @@ fn GridMap::search(
       break
     }
     closed[current] = true
-    let neighbors = self.neighbors4(current_point)
-    for i = 0; i < neighbors.length(); i = i + 1 {
-      let next = neighbors[i]
-      let next_index = self.index(next).unwrap()
-      if !closed[next_index] {
-        let step_cost = match algorithm {
-          BFS => 1
-          Dijkstra => self.cost_at(next).unwrap()
-          AStar(_) => self.cost_at(next).unwrap()
-        }
-        let candidate = dist[current] + step_cost
-        if candidate < dist[next_index] {
-          dist[next_index] = candidate
-          parent[next_index] = current
-          open.push(
-            next_index,
-            self.score_for(next_index, dist, goal, algorithm),
-          )
-        }
-      }
-    }
+    self.relax_grid_neighbor(
+      current,
+      Point::new(current_point.x + 1, current_point.y),
+      dist,
+      parent,
+      closed,
+      open,
+      goal,
+      algorithm,
+    )
+    self.relax_grid_neighbor(
+      current,
+      Point::new(current_point.x - 1, current_point.y),
+      dist,
+      parent,
+      closed,
+      open,
+      goal,
+      algorithm,
+    )
+    self.relax_grid_neighbor(
+      current,
+      Point::new(current_point.x, current_point.y + 1),
+      dist,
+      parent,
+      closed,
+      open,
+      goal,
+      algorithm,
+    )
+    self.relax_grid_neighbor(
+      current,
+      Point::new(current_point.x, current_point.y - 1),
+      dist,
+      parent,
+      closed,
+      open,
+      goal,
+      algorithm,
+    )
   }
 
   if start_index == goal_index {
@@ -217,6 +236,45 @@ fn GridMap::search(
     cost: dist[goal_index],
     visited_count,
     trace,
+  }
+}
+
+///|
+fn GridMap::relax_grid_neighbor(
+  self : GridMap,
+  current : Int,
+  next : Point,
+  dist : Array[Int],
+  parent : Array[Int],
+  closed : Array[Bool],
+  open : MinPriorityQueue,
+  goal : Point,
+  algorithm : Algorithm,
+) -> Unit {
+  match self.index(next) {
+    Some(next_index) =>
+      if !closed[next_index] {
+        match self.cost_at(next) {
+          Some(weight) => {
+            let step_cost = match algorithm {
+              BFS => 1
+              Dijkstra => weight
+              AStar(_) => weight
+            }
+            let candidate = dist[current] + step_cost
+            if candidate < dist[next_index] {
+              dist[next_index] = candidate
+              parent[next_index] = current
+              open.push(
+                next_index,
+                self.score_for(next_index, dist, goal, algorithm),
+              )
+            }
+          }
+          None => ()
+        }
+      }
+    None => ()
   }
 }
 
