@@ -23,8 +23,8 @@ existing BFS, Dijkstra, or A* implementation.
 ```mbt
 let agent = AgentProfile::new(1)
 let result = grid.find_path_for_agent(
-  Point::new(0, 2),
-  Point::new(4, 2),
+  Point::new(1, 2),
+  Point::new(5, 2),
   Algorithm::AStar(Heuristic::Manhattan),
   agent,
 )
@@ -57,6 +57,7 @@ Run:
 moon run cmd/bench
 ```
 
-The `clearance-corridor-5x5` rows compare point-agent and radius-1 routing on
-the same one-cell corridor. The point agent can pass; the radius-1 agent is
-rejected because its footprint would collide with walls.
+The `clearance-door-7x5` rows compare point-agent and radius-1 routing on the
+same one-cell doorway. The point agent can pass; the radius-1 agent is rejected
+because its footprint would collide with the doorway walls, even though the
+start and goal cells themselves have enough clearance.

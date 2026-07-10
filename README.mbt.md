@@ -115,16 +115,16 @@ grid before running BFS, Dijkstra, or A*.
 ```mbt nocheck
 ///|
 test {
-  let grid = GridMap::new(5, 5)
-    .set_blocked(Point::new(2, 0))
-    .set_blocked(Point::new(2, 1))
-    .set_blocked(Point::new(2, 3))
-    .set_blocked(Point::new(2, 4))
+  let grid = GridMap::new(7, 5)
+    .set_blocked(Point::new(3, 0))
+    .set_blocked(Point::new(3, 1))
+    .set_blocked(Point::new(3, 3))
+    .set_blocked(Point::new(3, 4))
 
-  let point_agent = grid.bfs(Point::new(0, 2), Point::new(4, 2))
+  let point_agent = grid.bfs(Point::new(1, 2), Point::new(5, 2))
   let large_agent = grid.find_path_for_agent(
-    Point::new(0, 2),
-    Point::new(4, 2),
+    Point::new(1, 2),
+    Point::new(5, 2),
     Algorithm::BFS,
     AgentProfile::new(1),
   )

@@ -148,20 +148,16 @@ fn run_many_agent_flow() -> Unit {
 ///|
 /// Shows how footprint-aware routing rejects corridors that are too narrow.
 fn run_clearance_route() -> Unit {
-  let start = @nav.Point::new(0, 2)
-  let goal = @nav.Point::new(4, 2)
-  let grid = @nav.GridMap::new(5, 5)
-    .set_blocked(@nav.Point::new(2, 0))
-    .set_blocked(@nav.Point::new(2, 1))
-    .set_blocked(@nav.Point::new(2, 3))
-    .set_blocked(@nav.Point::new(2, 4))
+  let start = @nav.Point::new(1, 2)
+  let goal = @nav.Point::new(5, 2)
+  let grid = @nav.GridMap::new(7, 5)
+    .set_blocked(@nav.Point::new(3, 0))
+    .set_blocked(@nav.Point::new(3, 1))
+    .set_blocked(@nav.Point::new(3, 3))
+    .set_blocked(@nav.Point::new(3, 4))
+  print_grid_result("clearance-door-7x5", "point-bfs", grid.bfs(start, goal))
   print_grid_result(
-    "clearance-corridor-5x5",
-    "point-bfs",
-    grid.bfs(start, goal),
-  )
-  print_grid_result(
-    "clearance-corridor-5x5",
+    "clearance-door-7x5",
     "radius1-bfs",
     grid.find_path_for_agent(
       start,

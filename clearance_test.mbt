@@ -26,20 +26,34 @@ test "clearance map reports supported radius" {
 
 ///|
 test "inflated grid closes narrow corridors for large agents" {
-  let grid = GridMap::new(5, 5)
-    .set_blocked(Point::new(2, 0))
-    .set_blocked(Point::new(2, 1))
-    .set_blocked(Point::new(2, 3))
-    .set_blocked(Point::new(2, 4))
-  let point_route = grid.bfs(Point::new(0, 2), Point::new(4, 2))
-  let large_route = grid.find_path_for_agent(
-    Point::new(0, 2),
-    Point::new(4, 2),
-    Algorithm::BFS,
-    AgentProfile::new(1),
-  )
+  let start = Point::new(1, 2)
+  let goal = Point::new(5, 2)
+  let grid = GridMap::new(7, 5)
+    .set_blocked(Point::new(3, 0))
+    .set_blocked(Point::new(3, 1))
+    .set_blocked(Point::new(3, 3))
+    .set_blocked(Point::new(3, 4))
+  let large = AgentProfile::new(1)
+  let point_route = grid.bfs(start, goal)
+  let large_route = grid.find_path_for_agent(start, goal, Algorithm::BFS, large)
+  assert_true(grid.can_stand_at(start, large))
+  assert_true(grid.can_stand_at(goal, large))
   assert_true(point_route.found)
   assert_false(large_route.found)
+}
+
+///|
+test "radius agent can route through wide open space" {
+  let result = GridMap::new(6, 5).find_path_for_agent(
+    Point::new(1, 2),
+    Point::new(4, 2),
+    Algorithm::AStar(Heuristic::Manhattan),
+    AgentProfile::new(1),
+  )
+  assert_true(result.found)
+  assert_eq(result.cost, 3)
+  assert_true(result.path[0] == Point::new(1, 2))
+  assert_true(result.path[result.path.length() - 1] == Point::new(4, 2))
 }
 
 ///|
