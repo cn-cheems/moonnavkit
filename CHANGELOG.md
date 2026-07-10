@@ -13,6 +13,11 @@ future users can trace the project history without reading every commit.
 
 ### Added
 
+- Added clearance-aware routing for non-point agents, including
+  `AgentProfile`, `ClearanceMap`, obstacle inflation, footprint checks, and
+  `GridMap::find_path_for_agent`.
+- Added a deterministic clearance benchmark scenario showing that large agents
+  are rejected from one-cell corridors while point agents still route normally.
 - Added `GridMap::analyze_path` for route legality, cost, step, and turn
   analysis on externally supplied or generated paths.
 - Added weighted multi-goal flow fields with O(path length) route queries.

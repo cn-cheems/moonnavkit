@@ -7,6 +7,7 @@ fn main {
   run_dense_grid()
   run_graph_route()
   run_many_agent_flow()
+  run_clearance_route()
 }
 
 ///|
@@ -141,5 +142,32 @@ fn run_many_agent_flow() -> Unit {
   )
   println(
     "many-agent-32x32-seed707,flow-field-build+queries,true,\{flow_cost},\{field.build_visited_count},\{query_steps},\{starts.length()}",
+  )
+}
+
+///|
+/// Shows how footprint-aware routing rejects corridors that are too narrow.
+fn run_clearance_route() -> Unit {
+  let start = @nav.Point::new(0, 2)
+  let goal = @nav.Point::new(4, 2)
+  let grid = @nav.GridMap::new(5, 5)
+    .set_blocked(@nav.Point::new(2, 0))
+    .set_blocked(@nav.Point::new(2, 1))
+    .set_blocked(@nav.Point::new(2, 3))
+    .set_blocked(@nav.Point::new(2, 4))
+  print_grid_result(
+    "clearance-corridor-5x5",
+    "point-bfs",
+    grid.bfs(start, goal),
+  )
+  print_grid_result(
+    "clearance-corridor-5x5",
+    "radius1-bfs",
+    grid.find_path_for_agent(
+      start,
+      goal,
+      @nav.Algorithm::BFS,
+      @nav.AgentProfile::new(1),
+    ),
   )
 }

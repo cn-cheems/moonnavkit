@@ -18,7 +18,8 @@ while leaving room for stronger engineering work.
 - Deterministic random grid generation.
 - Grid statistics and performance notes.
 - Stable min-priority queue for grid and graph open sets.
-- 28 passing tests.
+- Clearance-aware routing for non-point agents.
+- 42 passing tests.
 
 ## Near-Term Work
 
@@ -48,7 +49,12 @@ while leaving room for stronger engineering work.
 
    Add optional path smoothing and path compression for grid results.
 
-5. Benchmark command and records
+5. Agent-aware navigation
+
+   Extend clearance routing with additional footprint models and benchmark
+   cases for warehouse robots, tactical units, and evacuation simulations.
+
+6. Benchmark command and records
 
    Add reproducible benchmark scenarios based on seeded grids and graph cases.
    Track path cost, visited nodes, trace length, and output size.

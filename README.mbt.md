@@ -21,6 +21,7 @@ Current foundation:
 - Dijkstra for weighted shortest paths
 - A* with Manhattan, Euclidean, and Octile heuristics
 - Weighted multi-goal flow fields for many-agent routing
+- Clearance-aware routing for non-point agents and robot/unit footprints
 - Admissibility-safe A* on arbitrary weighted graphs
 - Stable min-priority queue for open-set management
 - Search trace recording
@@ -104,6 +105,38 @@ This supports deterministic routing for warehouse robots, game units,
 evacuation simulations, and repeated "nearest service point" queries. Invalid
 or blocked goals are ignored, unreachable cells remain explicit, and the field
 can be exported as JSON for inspection.
+
+## Clearance-Aware Routing
+
+Many demos treat every moving object as a point, but real game units, warehouse
+robots, and simulated agents occupy space. MoonNavKit can derive a footprint-safe
+grid before running BFS, Dijkstra, or A*.
+
+```mbt nocheck
+///|
+test {
+  let grid = GridMap::new(5, 5)
+    .set_blocked(Point::new(2, 0))
+    .set_blocked(Point::new(2, 1))
+    .set_blocked(Point::new(2, 3))
+    .set_blocked(Point::new(2, 4))
+
+  let point_agent = grid.bfs(Point::new(0, 2), Point::new(4, 2))
+  let large_agent = grid.find_path_for_agent(
+    Point::new(0, 2),
+    Point::new(4, 2),
+    Algorithm::BFS,
+    AgentProfile::new(1),
+  )
+
+  assert_true(point_agent.found)
+  assert_false(large_agent.found)
+}
+```
+
+`AgentProfile::new(1)` requires a 3x3 traversable footprint around each routed
+cell. Positive weights are preserved for safe cells, and cells that cannot host
+the footprint are treated as blocked in the derived routing grid.
 
 ## Path Quality Analysis
 
@@ -225,6 +258,7 @@ test {
 - Additional replay controls for generated HTML
 - Benchmark notes for grid and graph search
 - Route quality metrics for downstream simulation and validation tools
+- Clearance maps and footprint-aware path planning for non-point agents
 
 See [Roadmap](ROADMAP.md) for planned contest deliverables and non-goals.
 See [Performance Notes](docs/performance-notes.md) for current complexity and
@@ -233,6 +267,8 @@ See [Benchmark Scenarios](docs/benchmark-scenarios.md) for the deterministic
 `moon run cmd/bench` output used to track search behavior across commits.
 See [Flow Fields](docs/flow-fields.md) for cost semantics, complexity, and
 many-agent use cases.
+See [Clearance Routing](docs/clearance-routing.md) for footprint-aware routing
+semantics and benchmark evidence.
 See [Related Work](docs/related-work.md) for the project boundary within the
 MoonBit ecosystem.
 
