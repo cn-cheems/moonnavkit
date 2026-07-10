@@ -19,7 +19,8 @@ while leaving room for stronger engineering work.
 - Grid statistics and performance notes.
 - Stable min-priority queue for grid and graph open sets.
 - Clearance-aware routing for non-point agents.
-- 42 passing tests.
+- Line-of-sight route validation and waypoint compression.
+- 49 passing tests.
 
 ## Near-Term Work
 
@@ -47,7 +48,8 @@ while leaving room for stronger engineering work.
 
 4. Path post-processing
 
-   Add optional path smoothing and path compression for grid results.
+   Expand the current line-of-sight compression into optional smoothing modes
+   and richer route-quality reports.
 
 5. Agent-aware navigation
 

@@ -22,6 +22,7 @@ Current foundation:
 - A* with Manhattan, Euclidean, and Octile heuristics
 - Weighted multi-goal flow fields for many-agent routing
 - Clearance-aware routing for non-point agents and robot/unit footprints
+- Line-of-sight checks and waypoint compression for executable routes
 - Admissibility-safe A* on arbitrary weighted graphs
 - Stable min-priority queue for open-set management
 - Search trace recording
@@ -137,6 +138,25 @@ test {
 `AgentProfile::new(1)` requires a 3x3 traversable footprint around each routed
 cell. Positive weights are preserved for safe cells, and cells that cannot host
 the footprint are treated as blocked in the derived routing grid.
+
+## Waypoint Compression
+
+Grid search returns a cell-by-cell route. For rendering, steering, or robot
+commands, a smaller waypoint path is often more useful. MoonNavKit can compress
+successful routes with line-of-sight checks while respecting blocked cells and
+agent footprints.
+
+```mbt nocheck
+///|
+test {
+  let grid = GridMap::new(5, 3).set_blocked(Point::new(2, 1))
+  let result = grid.bfs(Point::new(0, 1), Point::new(4, 1))
+  let waypoints = result.compressed_path(grid, AgentProfile::point())
+
+  assert_true(result.found)
+  assert_true(waypoints.length() < result.path.length())
+}
+```
 
 ## Path Quality Analysis
 
@@ -259,6 +279,7 @@ test {
 - Benchmark notes for grid and graph search
 - Route quality metrics for downstream simulation and validation tools
 - Clearance maps and footprint-aware path planning for non-point agents
+- Path compression and line-of-sight tools for executable routes
 
 See [Roadmap](ROADMAP.md) for planned contest deliverables and non-goals.
 See [Performance Notes](docs/performance-notes.md) for current complexity and
@@ -269,6 +290,8 @@ See [Flow Fields](docs/flow-fields.md) for cost semantics, complexity, and
 many-agent use cases.
 See [Clearance Routing](docs/clearance-routing.md) for footprint-aware routing
 semantics and benchmark evidence.
+See [Path Post-Processing](docs/path-post-processing.md) for line-of-sight and
+waypoint compression APIs.
 See [Related Work](docs/related-work.md) for the project boundary within the
 MoonBit ecosystem.
 

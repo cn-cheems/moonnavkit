@@ -13,6 +13,10 @@ future users can trace the project history without reading every commit.
 
 ### Added
 
+- Added line-of-sight checks and waypoint compression for turning raw
+  cell-by-cell search paths into executable route waypoints.
+- Added path post-processing tests and a deterministic compression benchmark
+  scenario.
 - Added clearance-aware routing for non-point agents, including
   `AgentProfile`, `ClearanceMap`, obstacle inflation, footprint checks, and
   `GridMap::find_path_for_agent`.

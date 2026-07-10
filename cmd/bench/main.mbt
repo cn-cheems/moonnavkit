@@ -8,6 +8,7 @@ fn main {
   run_graph_route()
   run_many_agent_flow()
   run_clearance_route()
+  run_path_compression()
 }
 
 ///|
@@ -165,5 +166,19 @@ fn run_clearance_route() -> Unit {
       @nav.Algorithm::BFS,
       @nav.AgentProfile::new(1),
     ),
+  )
+}
+
+///|
+/// Shows waypoint compression after grid search.
+fn run_path_compression() -> Unit {
+  let start = @nav.Point::new(0, 1)
+  let goal = @nav.Point::new(4, 1)
+  let grid = @nav.GridMap::new(5, 3).set_blocked(@nav.Point::new(2, 1))
+  let result = grid.bfs(start, goal)
+  let compressed = result.compressed_path(grid, @nav.AgentProfile::point())
+  print_grid_result("compression-detour-5x3", "bfs-raw", result)
+  println(
+    "compression-detour-5x3,bfs-compressed,\{result.found},\{result.cost},\{result.visited_count},\{result.trace.length()},\{compressed.length()}",
   )
 }

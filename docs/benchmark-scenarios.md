@@ -29,6 +29,8 @@ open-16x16,bfs,true,30,256,256,31
 - `clearance-door-7x5`: compares point-agent BFS with radius-1 footprint
   routing on a one-cell doorway. Start and goal both have enough clearance; the
   only invalid part is the narrow doorway itself.
+- `compression-detour-5x3`: compares a raw cell-by-cell BFS route with the
+  compressed waypoint route after line-of-sight post-processing.
 
 ## How To Use The Results
 
@@ -44,4 +46,8 @@ reducing search expansions from `47672` to `1024`. See
 The clearance scenario is a correctness benchmark rather than a speed benchmark:
 it proves that MoonNavKit can reject physically impossible routes while reusing
 the same search algorithms.
+
+The compression scenario tracks route executability: the search still reports
+the original grid cost and visited count, while the compressed row reports how
+many waypoints a downstream renderer or steering system would need to follow.
 

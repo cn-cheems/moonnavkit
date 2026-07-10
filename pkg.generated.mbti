@@ -99,15 +99,18 @@ pub fn GridMap::blocked_count(Self) -> Int
 pub fn GridMap::can_stand_at(Self, Point, AgentProfile) -> Bool
 pub fn GridMap::cell_count(Self) -> Int
 pub fn GridMap::clearance_map(Self, Int) -> ClearanceMap
+pub fn GridMap::compress_path(Self, Array[Point], AgentProfile) -> Array[Point]
 pub fn GridMap::contains(Self, Point) -> Bool
 pub fn GridMap::cost_at(Self, Point) -> Int?
 pub fn GridMap::dijkstra(Self, Point, Point) -> PathResult
 pub fn GridMap::find_path(Self, Point, Point, Algorithm) -> PathResult
 pub fn GridMap::find_path_for_agent(Self, Point, Point, Algorithm, AgentProfile) -> PathResult
 pub fn GridMap::flow_field(Self, Array[Point]) -> FlowField
+pub fn GridMap::has_line_of_sight(Self, Point, Point, AgentProfile) -> Bool
 pub fn GridMap::index(Self, Point) -> Int?
 pub fn GridMap::inflate_blocked(Self, AgentProfile) -> Self
 pub fn GridMap::is_blocked(Self, Point) -> Bool
+pub fn GridMap::line_cells(Self, Point, Point) -> Array[Point]
 pub fn GridMap::neighbors4(Self, Point) -> Array[Point]
 pub fn GridMap::new(Int, Int) -> Self
 pub fn GridMap::point_at(Self, Int) -> Point
@@ -161,6 +164,7 @@ pub(all) struct PathResult {
   visited_count : Int
   trace : SearchTrace
 } derive(Eq, @debug.Debug)
+pub fn PathResult::compressed_path(Self, GridMap, AgentProfile) -> Array[Point]
 pub fn PathResult::not_found(Int) -> Self
 pub fn PathResult::to_json(Self) -> String
 
