@@ -1,20 +1,42 @@
-# MoonNavKit
+# MoonNavKit — dynamic navigation for MoonBit games and simulations
 
-Static and dynamic path planning, clearance-aware routing, flow fields, path
-compression, and search visualization for [MoonBit](https://www.moonbitlang.com/).
+When a door closes, terrain cost changes, or a simulated unit blocks a route,
+restarting A* for every update wastes work and can exceed a frame budget.
+MoonNavKit is a dependency-free MoonBit navigation library that combines a
+complete static-search toolkit with **incremental D* Lite repair** for changing
+two-dimensional worlds.
 
-MoonNavKit provides deterministic grid and graph navigation primitives for
-games, simulations, teaching tools, and visualization systems.
+It targets game AI, discrete simulation, visualization, and teaching tools.
+One typed API builds for MoonBit's supported WebAssembly, JavaScript, and native
+targets; the repository checks all targets in CI.
 
-## Highlights
+## Why D* Lite is the flagship
 
-- BFS, Dijkstra, and admissibility-safe A* for grids and directed graphs
-- Weighted multi-goal flow fields for many agents sharing destinations
-- Incremental D* Lite repair after dynamic obstacles or weights change
-- Clearance-aware routes for agents with a square footprint
-- Line-of-sight validation and waypoint compression
-- Search traces plus JSON, SVG, HTML replay, and Graphviz DOT export
-- Deterministic random-map generation and benchmark scenarios
+The deterministic `dynamic-32x32` benchmark plans across an open 32×32 grid,
+blocks one cell on the route, then compares incremental repair with a fresh
+Dijkstra run on the same changed map:
+
+| Result after the update | D* Lite repair | Fresh Dijkstra |
+| --- | ---: | ---: |
+| Path found | true | true |
+| Optimal cost | 33 | 33 |
+| Expanded vertices | **97** | 799 |
+
+This is an operation-count comparison rather than a machine-dependent timing
+claim. Run `moon run cmd/bench` to reproduce it exactly.
+
+## Capabilities
+
+| Need | MoonNavKit API |
+| --- | --- |
+| Fewest steps on an unweighted map | `bfs` |
+| Lowest traversal cost | `dijkstra` |
+| Goal-directed static search | `astar` |
+| Many starts sharing destinations | `flow_field` |
+| Dynamic obstacle/cost updates, fixed endpoints | `DynamicGridPlanner` |
+| Frame-budgeted dynamic repair | `replan_step` |
+| Agent footprints and narrow-corridor safety | `find_path_for_agent` |
+| Inspectable routes and searches | JSON, SVG, HTML, DOT, `SearchTrace` |
 
 ## Install
 
@@ -42,17 +64,6 @@ let result = grid.astar(
 assert_true(result.found)
 ```
 
-## Choose an algorithm
-
-| Need | Use |
-| --- | --- |
-| Fewest steps on an unweighted map | `bfs` |
-| Lowest traversal cost | `dijkstra` |
-| Lowest cost with a useful goal estimate | `astar` |
-| Many starts sharing one or more goals | `flow_field` |
-| A map changes while start and goal stay fixed | `DynamicGridPlanner` |
-| Agents with non-point footprints | `find_path_for_agent` |
-
 ## Dynamic replanning
 
 For a game unit or simulator whose grid changes during a route, retain a
@@ -74,6 +85,36 @@ let repaired = planner.replan()
 assert_eq(repaired.cost, 6)
 ```
 
+### Keep repair work inside a frame budget
+
+Use `replan_step` to process a bounded number of vertices each frame. A
+`Pending` result preserves the planner state; `Ready` returns the repaired
+optimal route. `repair_trace` exposes the ordered local work for profiling,
+visualization, or JSON export.
+
+```mbt
+let mut status = planner.replan_step(32)
+match status {
+  @moonnavkit.Pending(expanded) => println("repairing: \{expanded}")
+  @moonnavkit.Ready(result) => assert_true(result.found)
+}
+
+let trace_json = planner.repair_trace().to_json()
+```
+
+`DynamicGridPlanner` deliberately has a narrow, verifiable contract: a
+four-direction weighted grid with fixed start and goal. It does not claim
+moving-endpoint support, NavMesh support, shared multi-agent state, or
+incremental clearance updates.
+
+## MoonBit ecosystem value
+
+MoonNavKit turns MoonBit's multi-target toolchain into a concrete reusable
+navigation component: the same deterministic library API is checked for Wasm,
+Wasm-GC, JavaScript, and native targets. It keeps the core dependency-free,
+records search evidence as data, and offers reproducible command-line examples
+instead of hiding behavior behind a framework or a game engine.
+
 ## Documentation
 
 The MoonBit documentation source and complete runnable examples are in
@@ -83,6 +124,8 @@ The MoonBit documentation source and complete runnable examples are in
 [path post-processing](docs/path-post-processing.md), and
 [benchmark scenarios](docs/benchmark-scenarios.md), and
 [dynamic replanning](docs/dynamic-replanning.md).
+See [dynamic replanning](docs/dynamic-replanning.md) for the D* Lite API,
+frame-budget contract, trace semantics, and benchmark interpretation.
 For the exact cross-platform checks used by CI, see
 [contest readiness](docs/contest-readiness.md).
 

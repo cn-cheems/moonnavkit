@@ -1,10 +1,9 @@
 # MoonNavKit
 
-MoonNavKit is a backend-neutral MoonBit path planning, reusable flow-field, and
-search visualization toolkit.
+MoonNavKit is a MoonBit dynamic-navigation toolkit for games and simulations.
 
-It provides reusable grid and graph pathfinding primitives for games,
-simulation, teaching tools, and visualization systems.
+It combines reusable static grid/graph primitives with D* Lite incremental
+repair for dynamic obstacles and terrain costs.
 
 ## Status
 
@@ -130,6 +129,39 @@ test {
 The planner is intentionally scoped to four-direction weighted grids with a
 fixed start and goal. It is a stateful planning object rather than a replacement
 for one-shot BFS, Dijkstra, or A*.
+
+### Frame-Budgeted Repair and Trace Evidence
+
+Games and simulations can spread a repair over several updates instead of doing
+all work in one frame. `replan_step` processes at most the requested number of
+vertices and keeps state until it returns `Ready`.
+
+```mbt nocheck
+///|
+test {
+  let planner = DynamicGridPlanner::new(
+    GridMap::new(5, 3),
+    Point::new(0, 1),
+    Point::new(4, 1),
+  )
+  let mut status = planner.replan_step(1)
+  for _frame = 0; _frame < 16; _frame = _frame + 1 {
+    match status {
+      Pending(_) => status = planner.replan_step(1)
+      Ready(_) => ()
+    }
+  }
+  match status {
+    Ready(result) => assert_true(result.found)
+    Pending(_) => assert_true(false)
+  }
+  assert_eq(planner.repair_trace().length(), 5)
+}
+```
+
+`repair_trace` is a `SearchTrace`, so the same JSON, SVG/HTML tooling pattern
+can inspect incremental repair work without adding a visualization dependency
+to the planner.
 
 ## Many-Agent Flow Fields
 

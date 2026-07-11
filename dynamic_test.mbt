@@ -46,3 +46,40 @@ test "dynamic planner reports no path when an update seals the map" {
   assert_false(result.found)
   assert_eq(result.cost, -1)
 }
+
+///|
+test "dynamic planner can repair across deterministic frame budgets" {
+  let start = Point::new(0, 1)
+  let goal = Point::new(4, 1)
+  let planner = DynamicGridPlanner::new(GridMap::new(5, 3), start, goal)
+  let mut status = planner.replan_step(1)
+  for _frame = 0; _frame < 16; _frame = _frame + 1 {
+    match status {
+      Pending(_) => status = planner.replan_step(1)
+      Ready(_) => ()
+    }
+  }
+  match status {
+    Ready(result) => {
+      assert_true(result.found)
+      assert_eq(result.cost, 4)
+      assert_eq(planner.repair_trace().length(), result.visited_count)
+    }
+    Pending(_) => assert_true(false)
+  }
+}
+
+///|
+test "dynamic repair trace records the local update work" {
+  let start = Point::new(0, 1)
+  let goal = Point::new(4, 1)
+  let planner = DynamicGridPlanner::new(GridMap::new(5, 3), start, goal)
+  ignore(planner.replan())
+  planner.set_blocked(Point::new(2, 1)) |> ignore
+  let repaired = planner.replan()
+  let trace = planner.repair_trace()
+  assert_true(repaired.found)
+  assert_eq(trace.length(), repaired.visited_count)
+  assert_true(trace.length() > 0)
+  assert_eq(trace.steps[0].order, 0)
+}

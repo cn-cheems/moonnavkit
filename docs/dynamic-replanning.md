@@ -19,10 +19,20 @@ state after local map changes.
    updates to the planner.
 4. Call `replan` again; its `PathResult` is optimal for the current map.
 
+For a frame-limited simulation, replace the final step with repeated
+`replan_step(max_expansions)` calls. It returns `Pending(repaired_vertices)`
+until the repair completes, then `Ready(PathResult)`. The planner retains state
+between calls, so callers must not change the map while a repair is pending.
+
+`repair_trace` records each processed vertex in deterministic order. Its JSON
+representation lets a visualizer compare incremental work with a one-shot
+search without adding a rendering dependency to the core library.
+
 The planner owns mutable search state. It does not support moving the start or
-goal, diagonal movement, negative costs, concurrent mutation, or external
-mutation of the returned `GridMap`. Create a new planner when an endpoint
-changes.
+goal, diagonal movement, negative costs, concurrent mutation, external
+mutation of the returned `GridMap`, shared multi-agent repair state,
+incremental clearance updates, or incremental path smoothing. Create a new
+planner when an endpoint changes.
 
 ## Evidence
 

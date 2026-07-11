@@ -13,6 +13,10 @@ future users can trace the project history without reading every commit.
 
 ### Added
 
+- Added frame-budgeted `DynamicGridPlanner::replan_step` and
+  `DynamicReplanStatus` for game and simulation update loops.
+- Added deterministic D* Lite repair traces with JSON export through the shared
+  `SearchTrace` API.
 - Added `DynamicGridPlanner`, a stateful D* Lite planner for incrementally
   repairing four-direction weighted grid routes after obstacle and cost updates.
 - Added deterministic dynamic-replanning tests, benchmark output, API guide,

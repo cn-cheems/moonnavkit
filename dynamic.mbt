@@ -142,7 +142,19 @@ pub(all) struct DynamicGridPlanner {
   revisions : Array[Int]
   queue : DynamicPriorityQueue
   mut last_replan_expanded_count : Int
+  mut repair_in_progress : Bool
+  mut repair_trace : SearchTrace
 } derive(Debug)
+
+///|
+/// Result of one frame-budgeted dynamic replanning step.
+///
+/// `Pending` contains the number of vertices repaired so far. `Ready` carries
+/// the same optimal result returned by `replan`.
+pub(all) enum DynamicReplanStatus {
+  Pending(Int)
+  Ready(PathResult)
+} derive(Eq, Debug)
 
 ///|
 pub fn DynamicGridPlanner::new(
@@ -160,6 +172,8 @@ pub fn DynamicGridPlanner::new(
     revisions: Array::make(total, 0),
     queue: DynamicPriorityQueue::new(),
     last_replan_expanded_count: 0,
+    repair_in_progress: false,
+    repair_trace: SearchTrace::new(),
   }
   match planner.map.index(goal) {
     Some(goal_index) =>
@@ -182,6 +196,16 @@ pub fn DynamicGridPlanner::last_replan_expanded_count(
   self : DynamicGridPlanner,
 ) -> Int {
   self.last_replan_expanded_count
+}
+
+///|
+/// Returns the ordered vertices processed during the current or most recently
+/// completed repair. `cost` is the vertex's previous `g` value and `score` is
+/// its current `rhs` value, which makes local repairs inspectable in JSON.
+pub fn DynamicGridPlanner::repair_trace(
+  self : DynamicGridPlanner,
+) -> SearchTrace {
+  self.repair_trace
 }
 
 ///|
@@ -223,15 +247,49 @@ pub fn DynamicGridPlanner::set_weight(
 /// planner's current map. `last_replan_expanded_count` reports this repair's
 /// work, which can be compared with a fresh Dijkstra run in benchmarks.
 pub fn DynamicGridPlanner::replan(self : DynamicGridPlanner) -> PathResult {
-  self.last_replan_expanded_count = 0
-  guard self.map.contains(self.start) && self.map.contains(self.goal) else {
-    return PathResult::not_found(0)
-  }
-  guard !self.map.is_blocked(self.start) && !self.map.is_blocked(self.goal) else {
-    return PathResult::not_found(0)
-  }
-  self.compute_shortest_path()
+  guard self.begin_repair() else { return PathResult::not_found(0) }
+  ignore(self.compute_shortest_path(unreachable_cost))
+  self.repair_in_progress = false
   self.reconstruct_path()
+}
+
+///|
+/// Performs at most `max_expansions` D* Lite vertex repairs.
+///
+/// Call this once per game or simulation frame until it returns `Ready`. A
+/// non-positive budget does no repair and returns `Pending` when work remains.
+pub fn DynamicGridPlanner::replan_step(
+  self : DynamicGridPlanner,
+  max_expansions : Int,
+) -> DynamicReplanStatus {
+  guard self.begin_repair() else { return Ready(PathResult::not_found(0)) }
+  let budget = if max_expansions > 0 { max_expansions } else { 0 }
+  if self.compute_shortest_path(budget) {
+    self.repair_in_progress = false
+    Ready(self.reconstruct_path())
+  } else {
+    Pending(self.last_replan_expanded_count)
+  }
+}
+
+///|
+fn DynamicGridPlanner::begin_repair(self : DynamicGridPlanner) -> Bool {
+  if !self.map.contains(self.start) ||
+    !self.map.contains(self.goal) ||
+    self.map.is_blocked(self.start) ||
+    self.map.is_blocked(self.goal) {
+    self.repair_in_progress = false
+    self.last_replan_expanded_count = 0
+    self.repair_trace = SearchTrace::new()
+    false
+  } else {
+    if !self.repair_in_progress {
+      self.last_replan_expanded_count = 0
+      self.repair_trace = SearchTrace::new()
+      self.repair_in_progress = true
+    }
+    true
+  }
 }
 
 ///|
@@ -239,6 +297,7 @@ fn DynamicGridPlanner::notify_cell_changed(
   self : DynamicGridPlanner,
   point : Point,
 ) -> Unit {
+  self.repair_in_progress = false
   match self.map.index(point) {
     Some(index) => {
       self.update_vertex(index)
@@ -252,13 +311,16 @@ fn DynamicGridPlanner::notify_cell_changed(
 }
 
 ///|
-fn DynamicGridPlanner::compute_shortest_path(self : DynamicGridPlanner) -> Unit {
+fn DynamicGridPlanner::compute_shortest_path(
+  self : DynamicGridPlanner,
+  max_expansions : Int,
+) -> Bool {
   let start_index = self.map.index(self.start).unwrap()
-  let mut done = false
-  while !done {
+  let mut expanded = 0
+  while true {
     let start_key = self.key_for(start_index)
     match self.queue.peek() {
-      None => done = true
+      None => return true
       Some(entry) => {
         let should_continue = key_less(
             entry.first,
@@ -268,10 +330,18 @@ fn DynamicGridPlanner::compute_shortest_path(self : DynamicGridPlanner) -> Unit 
           ) ||
           self.rhs[start_index] != self.g[start_index]
         if !should_continue {
-          done = true
+          return true
+        } else if expanded >= max_expansions {
+          return false
         } else {
           let current = self.queue.pop().unwrap()
           if self.revisions[current.item] == current.revision {
+            self.repair_trace.push_step(
+              self.last_replan_expanded_count,
+              self.map.point_at(current.item),
+              self.g[current.item],
+              self.rhs[current.item],
+            )
             let current_key = self.key_for(current.item)
             if key_less(
                 current.first,
@@ -291,11 +361,13 @@ fn DynamicGridPlanner::compute_shortest_path(self : DynamicGridPlanner) -> Unit 
             }
             self.last_replan_expanded_count = self.last_replan_expanded_count +
               1
+            expanded = expanded + 1
           }
         }
       }
     }
   }
+  false
 }
 
 ///|
