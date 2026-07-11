@@ -21,6 +21,7 @@ Current foundation:
 - Dijkstra for weighted shortest paths
 - A* with Manhattan, Euclidean, and Octile heuristics
 - Weighted multi-goal flow fields for many-agent routing
+- Incremental D* Lite repair for dynamic obstacles and traversal costs
 - Clearance-aware routing for non-point agents and robot/unit footprints
 - Line-of-sight checks and waypoint compression for executable routes
 - Admissibility-safe A* on arbitrary weighted graphs
@@ -102,6 +103,33 @@ test {
 The default `GridMap` remains simple and efficient, while the trait layer gives
 library users a path toward custom maps, custom solvers, and custom smoothing
 without changing MoonNavKit's core algorithms.
+
+## Dynamic Replanning
+
+Static A* is not enough for a game or simulation where a door closes, a unit
+occupies a cell, or a terrain cost changes after a route is planned.
+`DynamicGridPlanner` retains D* Lite search state for a fixed start/goal pair,
+then repairs only affected vertices after local updates.
+
+```mbt nocheck
+///|
+test {
+  let start = Point::new(0, 1)
+  let goal = Point::new(4, 1)
+  let planner = DynamicGridPlanner::new(GridMap::new(5, 3), start, goal)
+
+  assert_eq(planner.replan().cost, 4)
+  planner.set_blocked(Point::new(2, 1)) |> ignore
+  let repaired = planner.replan()
+
+  assert_true(repaired.found)
+  assert_eq(repaired.cost, 6)
+}
+```
+
+The planner is intentionally scoped to four-direction weighted grids with a
+fixed start and goal. It is a stateful planning object rather than a replacement
+for one-shot BFS, Dijkstra, or A*.
 
 ## Many-Agent Flow Fields
 
@@ -319,6 +347,10 @@ See [Clearance Routing](docs/clearance-routing.md) for footprint-aware routing
 semantics and benchmark evidence.
 See [Path Post-Processing](docs/path-post-processing.md) for line-of-sight and
 waypoint compression APIs.
+See [Dynamic Replanning](docs/dynamic-replanning.md) for D* Lite semantics,
+update rules, and benchmark interpretation.
+See [Contest Readiness](docs/contest-readiness.md) for the exact CI validation
+commands and their current Moon CLI compatibility notes.
 See [Related Work](docs/related-work.md) for the project boundary within the
 MoonBit ecosystem.
 

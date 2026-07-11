@@ -41,21 +41,23 @@ jobs:
           moon version --all
           moon update
 
-      - name: Moon check
+      - name: moon check
         run: moon check --target all
 
-      - name: Moon test
-        run: moon test --target all
-
-      - name: Format check
+      # `moon fmt` and `moon info` do not accept `--deny-warn` in the
+      # supported Moon CLI. `--check` is the non-mutating formatter check;
+      # `moon info` followed by a clean diff verifies generated API metadata.
+      - name: moon fmt --check
         run: |
-          moon fmt
-          git diff --exit-code
+          moon fmt --check
 
-      - name: API metadata check
+      - name: moon info
         run: |
           moon info
           git diff --exit-code
+
+      - name: moon test
+        run: moon test --target all
 
       - name: Run deterministic demos
         if: ${{ matrix.os == 'ubuntu-latest' }}

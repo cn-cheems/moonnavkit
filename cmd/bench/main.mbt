@@ -7,6 +7,7 @@ fn main {
   run_dense_grid()
   run_graph_route()
   run_many_agent_flow()
+  run_dynamic_replanning()
   run_clearance_route()
   run_path_compression()
 }
@@ -143,6 +144,33 @@ fn run_many_agent_flow() -> Unit {
   )
   println(
     "many-agent-32x32-seed707,flow-field-build+queries,true,\{flow_cost},\{field.build_visited_count},\{query_steps},\{starts.length()}",
+  )
+}
+
+///|
+/// Compares a retained D* Lite state with a fresh Dijkstra run after a newly
+/// blocked cell invalidates the original route.
+fn run_dynamic_replanning() -> Unit {
+  let start = @nav.Point::new(0, 16)
+  let goal = @nav.Point::new(31, 16)
+  let grid = @nav.GridMap::new(32, 32)
+  let initial = grid.dijkstra(start, goal)
+  let planner = @nav.DynamicGridPlanner::new(grid, start, goal)
+  let first = planner.replan()
+  planner.set_blocked(@nav.Point::new(16, 16)) |> ignore
+  let repaired = planner.replan()
+  let fresh = planner.map().dijkstra(start, goal)
+  println(
+    "dynamic-32x32,initial-dijkstra,\{initial.found},\{initial.cost},\{initial.visited_count},\{initial.trace.length()},\{initial.path.length()}",
+  )
+  println(
+    "dynamic-32x32,dstar-lite-initial,\{first.found},\{first.cost},\{first.visited_count},\{first.trace.length()},\{first.path.length()}",
+  )
+  println(
+    "dynamic-32x32,dstar-lite-repair,\{repaired.found},\{repaired.cost},\{planner.last_replan_expanded_count()},\{repaired.trace.length()},\{repaired.path.length()}",
+  )
+  println(
+    "dynamic-32x32,fresh-dijkstra-after-update,\{fresh.found},\{fresh.cost},\{fresh.visited_count},\{fresh.trace.length()},\{fresh.path.length()}",
   )
 }
 

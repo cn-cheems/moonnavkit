@@ -33,6 +33,28 @@ pub(all) struct ClearanceMap {
 pub fn ClearanceMap::can_host(Self, Point, AgentProfile) -> Bool
 pub fn ClearanceMap::radius_at(Self, Point) -> Int?
 
+pub(all) struct DynamicGridPlanner {
+  map : GridMap
+  start : Point
+  goal : Point
+  g : Array[Int]
+  rhs : Array[Int]
+  revisions : Array[Int]
+  queue : DynamicPriorityQueue
+  mut last_replan_expanded_count : Int
+} derive(@debug.Debug)
+pub fn DynamicGridPlanner::last_replan_expanded_count(Self) -> Int
+pub fn DynamicGridPlanner::map(Self) -> GridMap
+pub fn DynamicGridPlanner::new(GridMap, Point, Point) -> Self
+pub fn DynamicGridPlanner::replan(Self) -> PathResult
+pub fn DynamicGridPlanner::set_blocked(Self, Point) -> Self
+pub fn DynamicGridPlanner::set_open(Self, Point) -> Self
+pub fn DynamicGridPlanner::set_weight(Self, Point, Int) -> Self
+
+type DynamicPriorityQueue derive(@debug.Debug)
+
+type DynamicQueueEntry derive(@debug.Debug)
+
 pub(all) struct FlowField {
   width : Int
   height : Int

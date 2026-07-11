@@ -52,4 +52,20 @@ fn main {
   println("random weighted cells: \{stats.weighted_cells}")
   println("random path found: \{random_result.found}")
   println("random visited cells: \{random_result.visited_count}")
+
+  let dynamic_start = @nav.Point::new(0, 1)
+  let dynamic_goal = @nav.Point::new(4, 1)
+  let planner = @nav.DynamicGridPlanner::new(
+    @nav.GridMap::new(5, 3),
+    dynamic_start,
+    dynamic_goal,
+  )
+  let initial_dynamic = planner.replan()
+  planner.set_blocked(@nav.Point::new(2, 1)) |> ignore
+  let repaired_dynamic = planner.replan()
+  println("dynamic initial cost: \{initial_dynamic.cost}")
+  println("dynamic repaired cost: \{repaired_dynamic.cost}")
+  println(
+    "dynamic repair expanded cells: \{planner.last_replan_expanded_count()}",
+  )
 }

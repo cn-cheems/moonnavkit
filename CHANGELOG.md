@@ -13,6 +13,10 @@ future users can trace the project history without reading every commit.
 
 ### Added
 
+- Added `DynamicGridPlanner`, a stateful D* Lite planner for incrementally
+  repairing four-direction weighted grid routes after obstacle and cost updates.
+- Added deterministic dynamic-replanning tests, benchmark output, API guide,
+  and runnable example that compare repaired routes with fresh Dijkstra runs.
 - Added a standard GitHub-facing `README.md` with installation, feature, and
   navigation guidance.
 

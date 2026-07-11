@@ -1,7 +1,7 @@
 # MoonNavKit
 
-Weighted path planning, clearance-aware routing, flow fields, path compression,
-and search visualization for [MoonBit](https://www.moonbitlang.com/).
+Static and dynamic path planning, clearance-aware routing, flow fields, path
+compression, and search visualization for [MoonBit](https://www.moonbitlang.com/).
 
 MoonNavKit provides deterministic grid and graph navigation primitives for
 games, simulations, teaching tools, and visualization systems.
@@ -10,6 +10,7 @@ games, simulations, teaching tools, and visualization systems.
 
 - BFS, Dijkstra, and admissibility-safe A* for grids and directed graphs
 - Weighted multi-goal flow fields for many agents sharing destinations
+- Incremental D* Lite repair after dynamic obstacles or weights change
 - Clearance-aware routes for agents with a square footprint
 - Line-of-sight validation and waypoint compression
 - Search traces plus JSON, SVG, HTML replay, and Graphviz DOT export
@@ -49,7 +50,29 @@ assert_true(result.found)
 | Lowest traversal cost | `dijkstra` |
 | Lowest cost with a useful goal estimate | `astar` |
 | Many starts sharing one or more goals | `flow_field` |
+| A map changes while start and goal stay fixed | `DynamicGridPlanner` |
 | Agents with non-point footprints | `find_path_for_agent` |
+
+## Dynamic replanning
+
+For a game unit or simulator whose grid changes during a route, retain a
+`DynamicGridPlanner` instead of restarting a search from scratch. Updates are
+local; `replan` repairs the retained D* Lite state and returns an optimal route.
+
+```mbt
+import "cn-cheems/moonnavkit"
+
+let start = @moonnavkit.Point::new(0, 1)
+let goal = @moonnavkit.Point::new(4, 1)
+let planner = @moonnavkit.DynamicGridPlanner::new(
+  @moonnavkit.GridMap::new(5, 3), start, goal,
+)
+
+assert_eq(planner.replan().cost, 4)
+planner.set_blocked(@moonnavkit.Point::new(2, 1)) |> ignore
+let repaired = planner.replan()
+assert_eq(repaired.cost, 6)
+```
 
 ## Documentation
 
@@ -58,7 +81,10 @@ The MoonBit documentation source and complete runnable examples are in
 [architecture](docs/architecture.md), [flow fields](docs/flow-fields.md),
 [clearance routing](docs/clearance-routing.md),
 [path post-processing](docs/path-post-processing.md), and
-[benchmark scenarios](docs/benchmark-scenarios.md).
+[benchmark scenarios](docs/benchmark-scenarios.md), and
+[dynamic replanning](docs/dynamic-replanning.md).
+For the exact cross-platform checks used by CI, see
+[contest readiness](docs/contest-readiness.md).
 
 ## Development
 

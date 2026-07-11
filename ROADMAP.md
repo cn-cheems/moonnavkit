@@ -22,7 +22,9 @@ while leaving room for stronger engineering work.
 - Clearance-aware routing for non-point agents.
 - Line-of-sight route validation and waypoint compression.
 - Hot-path grid search avoids per-expansion neighbor-array allocation.
-- 51 passing tests.
+- D* Lite repair for fixed-endpoint routes on changing weighted grids.
+- Deterministic dynamic-replanning benchmark and API guide.
+- 54 passing tests.
 
 ## Near-Term Work
 
@@ -60,15 +62,15 @@ while leaving room for stronger engineering work.
 
 6. Benchmark command and records
 
-   Add reproducible benchmark scenarios based on seeded grids and graph cases.
-   Track path cost, visited nodes, trace length, and output size.
+   Extend reproducible scenarios with larger dynamic-update workloads and track
+   path cost, visited nodes, trace length, and output size.
 
 ## Contest Deliverables
 
 - Public GitHub repository.
 - GitLink mirror.
 - README with runnable examples.
-- CI with `moon check` and `moon test`.
+- CI with `moon check`, `moon fmt --check`, `moon info`, and `moon test`.
 - Development report.
 - Proposal PDF.
 - Final submission checklist.

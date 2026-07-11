@@ -24,6 +24,8 @@ keywords = [
   "astar",
   "clearance",
   "cost-map",
+  "dstar-lite",
+  "dynamic-pathfinding",
   "flow-field",
   "graph",
   "grid",
@@ -31,4 +33,4 @@ keywords = [
   "visualization",
 ]
 
-description = "Weighted path planning, clearance-aware routing, flow fields, path compression, and search visualization for MoonBit."
+description = "Static and dynamic weighted path planning, clearance-aware routing, flow fields, path compression, and search visualization for MoonBit."
