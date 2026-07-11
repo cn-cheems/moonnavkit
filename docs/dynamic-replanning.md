@@ -33,6 +33,15 @@ between calls, so callers must not change the map while a repair is pending.
 representation lets a visualizer compare incremental work with a one-shot
 search without adding a rendering dependency to the core library.
 
+## Key-modifier safety
+
+Moving a start accumulates D* Lite's `km` key modifier. If it approaches the
+library's unreachable-cost sentinel, MoonNavKit resets the uniform modifier,
+filters stale versioned queue entries, refreshes live keys, and rebuilds the
+binary heap with Floyd's bottom-up `O(N)` heapify. This is a defensive recovery
+path, not normal per-frame work; `queue_rebuild_count` exposes it for tests and
+diagnostics.
+
 The planner owns mutable search state. It does not support moving the goal,
 diagonal movement, negative costs, concurrent mutation, external
 mutation of the returned `GridMap`, shared multi-agent repair state,

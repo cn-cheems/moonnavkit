@@ -99,3 +99,19 @@ test "dynamic planner repairs after the agent moves its start" {
   assert_eq(moved.cost, 3)
   assert_eq(moved.cost, expected.cost)
 }
+
+///|
+test "key modifier reset rebuilds the queue without losing the route" {
+  let planner = DynamicGridPlanner::new(
+    GridMap::new(5, 3),
+    Point::new(0, 1),
+    Point::new(4, 1),
+  )
+  // Matches the library's private unreachable-cost sentinel minus one.
+  planner.km = 999_999_999
+  planner.move_start(Point::new(1, 1)) |> ignore
+  let result = planner.replan()
+  assert_eq(planner.queue_rebuild_count(), 1)
+  assert_true(result.found)
+  assert_eq(result.cost, 3)
+}

@@ -127,6 +127,44 @@ fn DynamicPriorityQueue::swap(
 }
 
 ///|
+/// Removes stale versioned entries, refreshes keys, and restores heap order in
+/// linear time with Floyd's bottom-up heap construction.
+fn DynamicPriorityQueue::rebuild_valid(
+  self : DynamicPriorityQueue,
+  revisions : Array[Int],
+  map : GridMap,
+  start : Point,
+  g : Array[Int],
+  rhs : Array[Int],
+  km : Int,
+) -> Unit {
+  let mut valid_count = 0
+  for read = 0; read < self.entries.length(); read = read + 1 {
+    let entry = self.entries[read]
+    if revisions[entry.item] == entry.revision {
+      let value = min_int(g[entry.item], rhs[entry.item])
+      let distance = start.manhattan(map.point_at(entry.item))
+      self.entries[valid_count] = {
+        item: entry.item,
+        first: capped_add(value, capped_add(distance, km)),
+        second: value,
+        revision: entry.revision,
+        order: entry.order,
+      }
+      valid_count = valid_count + 1
+    }
+  }
+  while self.entries.length() > valid_count {
+    ignore(self.entries.unsafe_pop())
+  }
+  let mut parent = valid_count / 2
+  while parent > 0 {
+    parent = parent - 1
+    self.sift_down(parent)
+  }
+}
+
+///|
 /// Incremental D* Lite planner for a four-direction weighted `GridMap`.
 ///
 /// Update a cell with `set_blocked`, `set_open`, or `set_weight`, then call
@@ -145,6 +183,7 @@ pub(all) struct DynamicGridPlanner {
   mut repair_in_progress : Bool
   mut repair_trace : SearchTrace
   mut km : Int
+  mut queue_rebuild_count : Int
 } derive(Debug)
 
 ///|
@@ -176,6 +215,7 @@ pub fn DynamicGridPlanner::new(
     repair_in_progress: false,
     repair_trace: SearchTrace::new(),
     km: 0,
+    queue_rebuild_count: 0,
   }
   match planner.map.index(goal) {
     Some(goal_index) =>
@@ -194,6 +234,15 @@ pub fn DynamicGridPlanner::map(self : DynamicGridPlanner) -> GridMap {
 }
 
 ///|
+/// Returns how often the lazy priority queue was compacted after a key-modifier
+/// reset. Normal game-sized maps should keep this at zero.
+pub fn DynamicGridPlanner::queue_rebuild_count(
+  self : DynamicGridPlanner,
+) -> Int {
+  self.queue_rebuild_count
+}
+
+///|
 /// Moves the planner's start while preserving its D* Lite search state.
 ///
 /// A valid, open point updates D* Lite's key modifier and is repaired by the
@@ -205,8 +254,25 @@ pub fn DynamicGridPlanner::move_start(
   next_start : Point,
 ) -> DynamicGridPlanner {
   if self.map.contains(next_start) && !self.map.is_blocked(next_start) {
-    self.km = capped_add(self.km, self.start.manhattan(next_start))
+    let movement = self.start.manhattan(next_start)
     self.start = next_start
+    let reserve = self.map.width + self.map.height + movement + 1
+    if self.km > unreachable_cost - reserve {
+      // `km` is a uniform first-key offset. Resetting it preserves ordering
+      // only after every live entry receives its new key.
+      self.km = movement
+      self.queue.rebuild_valid(
+        self.revisions,
+        self.map,
+        self.start,
+        self.g,
+        self.rhs,
+        self.km,
+      )
+      self.queue_rebuild_count = self.queue_rebuild_count + 1
+    } else {
+      self.km = self.km + movement
+    }
     self.repair_in_progress = false
   }
   self

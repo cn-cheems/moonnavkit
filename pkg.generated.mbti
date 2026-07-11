@@ -45,11 +45,13 @@ pub(all) struct DynamicGridPlanner {
   mut repair_in_progress : Bool
   mut repair_trace : SearchTrace
   mut km : Int
+  mut queue_rebuild_count : Int
 } derive(@debug.Debug)
 pub fn DynamicGridPlanner::last_replan_expanded_count(Self) -> Int
 pub fn DynamicGridPlanner::map(Self) -> GridMap
 pub fn DynamicGridPlanner::move_start(Self, Point) -> Self
 pub fn DynamicGridPlanner::new(GridMap, Point, Point) -> Self
+pub fn DynamicGridPlanner::queue_rebuild_count(Self) -> Int
 pub fn DynamicGridPlanner::repair_trace(Self) -> SearchTrace
 pub fn DynamicGridPlanner::replan(Self) -> PathResult
 pub fn DynamicGridPlanner::replan_step(Self, Int) -> DynamicReplanStatus

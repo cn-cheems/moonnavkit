@@ -13,6 +13,8 @@ future users can trace the project history without reading every commit.
 
 ### Added
 
+- Added linear-time D* Lite queue compaction for key-modifier overflow safety.
+  It purges stale versioned entries and rebuilds live entries with Floyd heapify.
 - Added `DynamicGridPlanner::move_start`, including D* Lite key-modifier
   updates for a moving game or simulation agent with a fixed goal.
 - Added frame-budgeted `DynamicGridPlanner::replan_step` and
