@@ -384,6 +384,8 @@ See [Dynamic Replanning](docs/dynamic-replanning.md) for D* Lite semantics,
 update rules, and benchmark interpretation.
 See [Contest Readiness](docs/contest-readiness.md) for the exact CI validation
 commands and their current Moon CLI compatibility notes.
+See [Review Evidence](docs/review-evidence.md) for test, scope, provenance, and
+development-history evidence prepared for repository review.
 See [Related Work](docs/related-work.md) for the project boundary within the
 MoonBit ecosystem.
 

@@ -134,6 +134,8 @@ See [dynamic replanning](docs/dynamic-replanning.md) for the D* Lite API,
 frame-budget contract, trace semantics, and benchmark interpretation.
 For the exact cross-platform checks used by CI, see
 [contest readiness](docs/contest-readiness.md).
+For a concise acceptance-oriented inventory of tests, scope, provenance, and
+development history, see [review evidence](docs/review-evidence.md).
 
 ## Development
 
