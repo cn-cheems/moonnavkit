@@ -5,6 +5,17 @@ future users can trace the project history without reading every commit.
 
 ## Unreleased
 
+### Changed
+
+- Graph searches now iterate an internal adjacency table instead of scanning
+  every edge for each expanded node. The existing `edges` and `neighbors` APIs
+  remain available for inspection and export.
+
+### Added
+
+- Added a standard GitHub-facing `README.md` with installation, feature, and
+  navigation guidance.
+
 ### Fixed
 
 - Removed per-expansion neighbor-array allocation from the grid search hot path.

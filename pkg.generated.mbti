@@ -52,6 +52,7 @@ pub fn FlowField::to_json(Self) -> String
 pub(all) struct Graph {
   nodes : Array[GraphNode]
   edges : Array[GraphEdge]
+  adjacency : Array[Array[GraphEdge]]
 } derive(Eq, @debug.Debug)
 pub fn Graph::add_directed_edge(Self, Int, Int, Int) -> Self
 pub fn Graph::add_node(Self, Point) -> Int

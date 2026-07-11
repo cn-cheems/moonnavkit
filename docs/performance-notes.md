@@ -9,7 +9,9 @@ larger maps and graphs.
 
 Grid search and graph search share `MinPriorityQueue` for the open set. Entries
 are stable for equal priorities, and stale entries are skipped when a better
-distance has already been recorded.
+distance has already been recorded. Graphs maintain an adjacency table, so an
+expansion visits only the current node's outgoing edges rather than rescanning
+the full edge list.
 
 | Operation | Current complexity |
 | --- | --- |

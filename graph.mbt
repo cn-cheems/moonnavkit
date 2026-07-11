@@ -18,11 +18,12 @@ pub(all) struct GraphEdge {
 pub(all) struct Graph {
   nodes : Array[GraphNode]
   edges : Array[GraphEdge]
+  adjacency : Array[Array[GraphEdge]]
 } derive(Eq, Debug)
 
 ///|
 pub fn Graph::new() -> Graph {
-  { nodes: [], edges: [] }
+  { nodes: [], edges: [], adjacency: [] }
 }
 
 ///|
@@ -39,6 +40,7 @@ pub fn Graph::edge_count(self : Graph) -> Int {
 pub fn Graph::add_node(self : Graph, position : Point) -> Int {
   let id = self.nodes.length()
   self.nodes.push({ id, position })
+  self.adjacency.push([])
   id
 }
 
@@ -64,7 +66,9 @@ pub fn Graph::add_directed_edge(
   weight : Int,
 ) -> Graph {
   if self.is_valid_node(from) && self.is_valid_node(to) && weight > 0 {
-    self.edges.push({ from, to, weight })
+    let edge = { from, to, weight }
+    self.edges.push(edge)
+    self.adjacency[from].push(edge)
   }
   self
 }
@@ -84,9 +88,10 @@ pub fn Graph::add_undirected_edge(
 ///|
 pub fn Graph::neighbors(self : Graph, node : Int) -> Array[GraphEdge] {
   let result : Array[GraphEdge] = []
-  for i = 0; i < self.edges.length(); i = i + 1 {
-    if self.edges[i].from == node {
-      result.push(self.edges[i])
+  if self.is_valid_node(node) {
+    let outgoing = self.adjacency[node]
+    for i = 0; i < outgoing.length(); i = i + 1 {
+      result.push(outgoing[i])
     }
   }
   result
@@ -195,7 +200,7 @@ fn Graph::search(
       break
     }
     closed[current] = true
-    let edges = self.neighbors(current)
+    let edges = self.adjacency[current]
     for i = 0; i < edges.length(); i = i + 1 {
       let edge = edges[i]
       if !closed[edge.to] {

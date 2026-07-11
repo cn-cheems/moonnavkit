@@ -16,8 +16,8 @@ extension points for future MoonBit ecosystem users.
 
 MoonNavKit exposes three open traits:
 
-- `NavigationMap` describes map-like objects with containment, cost, and
-  neighbor access.
+- `NavigationMap` documents the map-like contract that the next generic search
+  layer will consume: containment, cost, and neighbor access.
 - `PathSolver` describes solver strategy values.
 - `PathSmoother` describes route post-processing strategy values.
 
@@ -27,7 +27,10 @@ The first implementations are intentionally conservative:
 - `LineOfSightSmoother` delegates to `GridMap::compress_path`.
 
 This gives the public API a trait-oriented shape without destabilizing the
-existing, tested grid and graph algorithms.
+existing, tested grid and graph algorithms. Today `GridSolver` deliberately
+accepts `GridMap`; using arbitrary `NavigationMap` implementations as direct
+search inputs remains the next planned extraction rather than a capability the
+current API claims to provide.
 
 ## Hot Path Design
 
@@ -36,6 +39,11 @@ exists for users and tests, but BFS, Dijkstra, and A* now relax the four
 candidate cells directly inside the search loop. This removes one array
 allocation per expanded cell and reduces GC pressure in pathfinding-heavy
 workloads.
+
+Graph search stores outgoing edges in an adjacency table as nodes and edges are
+added. Public `Graph::neighbors` still returns a copy for inspection, while the
+search loop reads the stored outgoing edges directly. This keeps the ergonomic
+API while avoiding a full edge-list scan for every expanded graph node.
 
 ## Evidence Pipeline
 
