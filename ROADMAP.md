@@ -22,7 +22,7 @@ while leaving room for stronger engineering work.
 - Clearance-aware routing for non-point agents.
 - Line-of-sight route validation and waypoint compression.
 - Hot-path grid search avoids per-expansion neighbor-array allocation.
-- D* Lite repair for fixed-endpoint routes on changing weighted grids.
+- D* Lite repair for a moving start and fixed goal on changing weighted grids.
 - Deterministic dynamic-replanning benchmark and API guide.
 - 54 passing tests.
 

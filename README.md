@@ -33,7 +33,7 @@ claim. Run `moon run cmd/bench` to reproduce it exactly.
 | Lowest traversal cost | `dijkstra` |
 | Goal-directed static search | `astar` |
 | Many starts sharing destinations | `flow_field` |
-| Dynamic obstacle/cost updates, fixed endpoints | `DynamicGridPlanner` |
+| Dynamic obstacle/cost updates with a fixed goal | `DynamicGridPlanner` |
 | Frame-budgeted dynamic repair | `replan_step` |
 | Agent footprints and narrow-corridor safety | `find_path_for_agent` |
 | Inspectable routes and searches | JSON, SVG, HTML, DOT, `SearchTrace` |
@@ -103,9 +103,15 @@ let trace_json = planner.repair_trace().to_json()
 ```
 
 `DynamicGridPlanner` deliberately has a narrow, verifiable contract: a
-four-direction weighted grid with fixed start and goal. It does not claim
-moving-endpoint support, NavMesh support, shared multi-agent state, or
+four-direction weighted grid with a fixed goal and a movable start. It does not
+claim moving-goal support, NavMesh support, shared multi-agent state, or
 incremental clearance updates.
+
+```mbt
+// The unit advances one cell; retain the repaired reverse-search state.
+planner.move_start(@moonnavkit.Point::new(1, 1)) |> ignore
+let next_route = planner.replan()
+```
 
 ## MoonBit ecosystem value
 

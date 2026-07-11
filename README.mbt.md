@@ -107,8 +107,8 @@ without changing MoonNavKit's core algorithms.
 
 Static A* is not enough for a game or simulation where a door closes, a unit
 occupies a cell, or a terrain cost changes after a route is planned.
-`DynamicGridPlanner` retains D* Lite search state for a fixed start/goal pair,
-then repairs only affected vertices after local updates.
+`DynamicGridPlanner` retains D* Lite search state for a fixed goal, then repairs
+only affected vertices after local updates or `move_start` calls.
 
 ```mbt nocheck
 ///|
@@ -127,8 +127,9 @@ test {
 ```
 
 The planner is intentionally scoped to four-direction weighted grids with a
-fixed start and goal. It is a stateful planning object rather than a replacement
-for one-shot BFS, Dijkstra, or A*.
+fixed goal. `move_start` retains D* Lite state as an agent advances; changing
+the goal requires a new planner. It is a stateful planning object rather than a
+replacement for one-shot BFS, Dijkstra, or A*.
 
 ### Frame-Budgeted Repair and Trace Evidence
 

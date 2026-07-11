@@ -83,3 +83,19 @@ test "dynamic repair trace records the local update work" {
   assert_true(trace.length() > 0)
   assert_eq(trace.steps[0].order, 0)
 }
+
+///|
+test "dynamic planner repairs after the agent moves its start" {
+  let planner = DynamicGridPlanner::new(
+    GridMap::new(5, 3),
+    Point::new(0, 1),
+    Point::new(4, 1),
+  )
+  assert_eq(planner.replan().cost, 4)
+  planner.move_start(Point::new(1, 1)) |> ignore
+  let moved = planner.replan()
+  let expected = planner.map().dijkstra(Point::new(1, 1), Point::new(4, 1))
+  assert_true(moved.found)
+  assert_eq(moved.cost, 3)
+  assert_eq(moved.cost, expected.cost)
+}

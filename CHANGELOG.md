@@ -13,6 +13,8 @@ future users can trace the project history without reading every commit.
 
 ### Added
 
+- Added `DynamicGridPlanner::move_start`, including D* Lite key-modifier
+  updates for a moving game or simulation agent with a fixed goal.
 - Added frame-budgeted `DynamicGridPlanner::replan_step` and
   `DynamicReplanStatus` for game and simulation update loops.
 - Added deterministic D* Lite repair traces with JSON export through the shared

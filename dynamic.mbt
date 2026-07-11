@@ -135,7 +135,7 @@ fn DynamicPriorityQueue::swap(
 /// when either endpoint changes.
 pub(all) struct DynamicGridPlanner {
   map : GridMap
-  start : Point
+  mut start : Point
   goal : Point
   g : Array[Int]
   rhs : Array[Int]
@@ -144,6 +144,7 @@ pub(all) struct DynamicGridPlanner {
   mut last_replan_expanded_count : Int
   mut repair_in_progress : Bool
   mut repair_trace : SearchTrace
+  mut km : Int
 } derive(Debug)
 
 ///|
@@ -174,6 +175,7 @@ pub fn DynamicGridPlanner::new(
     last_replan_expanded_count: 0,
     repair_in_progress: false,
     repair_trace: SearchTrace::new(),
+    km: 0,
   }
   match planner.map.index(goal) {
     Some(goal_index) =>
@@ -189,6 +191,25 @@ pub fn DynamicGridPlanner::new(
 ///|
 pub fn DynamicGridPlanner::map(self : DynamicGridPlanner) -> GridMap {
   self.map
+}
+
+///|
+/// Moves the planner's start while preserving its D* Lite search state.
+///
+/// A valid, open point updates D* Lite's key modifier and is repaired by the
+/// next `replan` or `replan_step`. Invalid or blocked points are ignored, so a
+/// game loop can submit a candidate position without risking a panic. The goal
+/// remains fixed; construct a new planner to change it.
+pub fn DynamicGridPlanner::move_start(
+  self : DynamicGridPlanner,
+  next_start : Point,
+) -> DynamicGridPlanner {
+  if self.map.contains(next_start) && !self.map.is_blocked(next_start) {
+    self.km = capped_add(self.km, self.start.manhattan(next_start))
+    self.start = next_start
+    self.repair_in_progress = false
+  }
+  self
 }
 
 ///|
@@ -429,7 +450,7 @@ fn DynamicGridPlanner::key_for(
 ) -> (Int, Int) {
   let value = min_int(self.g[index], self.rhs[index])
   let distance = self.start.manhattan(self.map.point_at(index))
-  (capped_add(value, distance), value)
+  (capped_add(value, capped_add(distance, self.km)), value)
 }
 
 ///|

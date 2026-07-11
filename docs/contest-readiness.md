@@ -34,7 +34,7 @@ arguments.
 MoonNavKit is a deterministic, dependency-free navigation library for weighted
 four-direction grids and directed graphs. It covers one-shot search, reusable
 many-agent flow fields, clearance-aware routing, route validation/compression,
-and dynamic D* Lite repair for fixed endpoints.
+and dynamic D* Lite repair for a moving agent with a fixed goal.
 
 The public README includes runnable grid and dynamic replanning examples. The
 benchmark command emits deterministic CSV rows for static grid/graph search,
